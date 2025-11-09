@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Air BNB</title>
+    <title>Wander Lust</title>
 </head>
 <style>
     ul li a{
@@ -17,6 +17,9 @@
             <li><a href="/listings/<%=listing.id%>"><%=listing.title %></a></li>
         <% }%>
     </ul>
+    <form method="get" action="/listings/new">
+        <button>Create New Listing</button>
+    </form>
 </body>
 
 </html>
