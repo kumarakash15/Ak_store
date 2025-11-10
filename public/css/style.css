@@ -1,3 +1,7 @@
+body{
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+}
+
 /* navbar */
 .navbar{
     height: 5rem;
@@ -41,4 +45,37 @@
 
 .f-info-links a:hover{
     text-decoration: underline;
+}
+
+/* card */
+.card{
+    border: none !important;
+    margin-bottom: 2rem;
+}
+
+.card-img-top{
+    border-radius: 1rem;
+    width: 100%;
+    object-fit: cover;
+}
+
+.card-body{
+    padding: 0;
+}
+
+.listing-link{
+    text-decoration: none;
+}
+
+.card-text{
+    font-weight: 400;
+}
+
+.card-img-overlay{
+    opacity: 0;
+}
+
+.card-img-overlay:hover{
+    opacity: 0.2;
+    background-color: white;
 }

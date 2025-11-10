@@ -1,12 +1,24 @@
-<%layout("/layout/bollerplate")%>
-<body>
-    <h3>All listing</h3>
-    <ul>
-        <% for(let listing of alllistings){ %>
-            <li><a href="/listings/<%=listing.id%>"><%=listing.title %></a></li>
-        <% }%>
-    </ul>
-    <!-- <form method="get" action="/listings/new">
+<%layout(" /layout/bollerplate")%>
+
+    <body>
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1">
+            <% for(let listing of alllistings){ %>
+                <a href="/listings/<%=listing.id%>" class="listing-link">
+                    <div class="card col">
+                        <img src="<%=listing.image.url %>" class="card-img-top" alt="<%=listing.image.filename %>"
+                            style="height: 20rem;">
+                        <div class="card-img-overlay"></div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <b><%=listing.title %></b><br>
+                                &#8377;<%= listing.price.toLocaleString("en-IN") %>/night
+                            </p>
+                        </div>
+                    </div>
+                </a>
+                <% }%>
+        </div>
+        <!-- <form method="get" action="/listings/new">
         <button>Create New Listing</button>
     </form> -->
-</body>
+    </body>
