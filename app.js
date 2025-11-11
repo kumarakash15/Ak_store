@@ -40,7 +40,6 @@ app.get("/listings/new",(req,res)=>{
 app.post("/listings",async(req,res)=>{
     const newlisting=new Listing(req.body.Listing);
     await newlisting.save();
-    console.log(newlisting)
     res.redirect("/listings")
 })
 

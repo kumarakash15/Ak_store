@@ -8,7 +8,10 @@ const ListingSchema = new Schema({
   },
   description: String,
   image: {
-    filename: String,
+    filename:{
+      type:String,
+      default:"listingimage",
+    },
     url: {
       type: String,
       default: "https://unsplash.com/photos/gray-wooden-house-178j8tJrNlc",
