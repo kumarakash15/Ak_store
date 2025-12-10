@@ -1,27 +1,55 @@
 const mongoose = require('mongoose');
-const Schema=mongoose.Schema;
-
+const Schema = mongoose.Schema;
 const ListingSchema = new Schema({
-  title: {
-    type: String,
-    required: true,
-  },
-  description: String,
   image: {
-    filename:{
-      type:String,
-      default:"listingimage",
-    },
-    url: {
-      type: String,
-      default: "https://unsplash.com/photos/gray-wooden-house-178j8tJrNlc",
-      set: (v) => v === "" ? "https://unsplash.com/photos/gray-wooden-house-178j8tJrNlc" : v,
-    },
+    type: String,
+    required: true
   },
-  price: Number,
-  location: String,
-  country: String,
-});
+  company: {
+    type: String,
+    required: true
+  },
 
-const Listing=mongoose.model("Listing",ListingSchema);
-module.exports=Listing;
+  item_name: {
+    type: String,
+    required: true
+  },
+
+  original_price: {
+    type: Number,
+    required: true
+  },
+
+  current_price: {
+    type: Number,
+    required: true
+  },
+
+  discount_percentage: {
+    type: Number,
+    default: 0
+  },
+
+  return_period: {
+    type: Number,
+    default: 0
+  },
+
+  delivery_date: {
+    type: String,
+    required: true
+  },
+
+  rating: {
+    stars: {
+      type: Number,
+      default: 0
+    },
+    count: {
+      type: Number,
+      default: 0
+    }
+  }
+});
+const Listing = mongoose.model("Listing", ListingSchema);
+module.exports = Listing;
