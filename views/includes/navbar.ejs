@@ -25,10 +25,16 @@
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span>Wish List</span>
             </div>
-            <div class="icon-box">
-                <i class="fa-solid fa-bag-shopping"></i>
+            <div class="icon-box position-relative">
+                <i class="fa-solid fa-bag-shopping fs-4"></i>
                 <span>Bag</span>
+
+                <!-- CART COUNT BADGE -->
+                <span id="cartCount" class="cart-badge">
+                    <%= cartCount || 0 %>
+                </span>
             </div>
+
         </div>
     </div>
 </nav>

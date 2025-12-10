@@ -94,8 +94,26 @@ body{
 .icon-box:hover span {
     color: #ff3f6c;
 }
+.cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background-color: #ff3f6c; /* Myntra pink */
+    color: white;
+    border-radius: 50%;
+    padding: 3px 7px;
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+    box-shadow: 0 0 2px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease;
+}
 
-
+/* Animation when count changes */
+.cart-badge.bump {
+    transform: scale(1.4);
+}
 /* footer */
 .footer {
     background-color: #f2f2f2;

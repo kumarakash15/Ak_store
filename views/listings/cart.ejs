@@ -1,0 +1,30 @@
+<% layout('/layout/bollerplate') %>
+
+<h2 class="text-center mt-4">Your Cart</h2>
+
+<div class="container mt-4">
+    <% if (cartItems.length === 0) { %>
+        <h4 class="text-center text-muted">Your cart is empty</h4>
+    <% } %>
+
+    <% cartItems.forEach(item => { %>
+        <div class="card p-3 mb-3">
+            <div class="row">
+
+                <div class="col-md-2">
+                    <img src="<%= item.productId.image %>" class="img-fluid">
+                </div>
+
+                <div class="col-md-8">
+                    <h5><%= item.productId.company %></h5>
+                    <p><%= item.productId.item_name %></p>
+                    <p>₹<%= item.productId.current_price %></p>
+                </div>
+
+                <div class="col-md-2">
+                    <p>Qty: <%= item.quantity %></p>
+                </div>
+            </div>
+        </div>
+    <% }) %>
+</div>

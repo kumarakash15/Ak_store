@@ -4,13 +4,16 @@
         <div id="carouselExampleInterval" class="carousel slide mt-3" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active" data-bs-interval="10000">
-                    <img src="/photo/banner1.jpg" class="d-block w-100" alt="imaage not fount" style="width: 100%; height: 30rem;">
+                    <img src="/photo/banner1.jpg" class="d-block w-100" alt="imaage not fount"
+                        style="width: 100%; height: 30rem;">
                 </div>
                 <div class="carousel-item" data-bs-interval="2000">
-                    <img src="/photo/banner2.jpg" class="d-block w-100" alt="image not found" style="width: 100%; height: 30rem;">
+                    <img src="/photo/banner2.jpg" class="d-block w-100" alt="image not found"
+                        style="width: 100%; height: 30rem;">
                 </div>
                 <div class="carousel-item">
-                    <img src="/photo/banner3.jpg" class="d-block w-100" alt="image not found" style="width: 100%; height: 30rem;">
+                    <img src="/photo/banner3.jpg" class="d-block w-100" alt="image not found"
+                        style="width: 100%; height: 30rem;">
                 </div>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval"
@@ -49,7 +52,9 @@
                                     </span>
                             </p>
                             <div class="d-grid gap-2">
-                                <button class="btn btn-primary">Add to cart</button>
+                                <form method="POST" action="/add-to-cart/<%= product._id %>">
+                                    <button class="btn btn-primary w-100">Add to Cart</button>
+                                </form>
                                 <button class="btn btn-success">Buy</button>
                             </div>
                         </div>
