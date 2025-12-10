@@ -1,72 +1,103 @@
 <% layout("/layout/bollerplate") %>
 
-<style>
-    
-</style>
+    <style>
 
-<body class="p-4">
+    </style>
 
-    <div class="product-container mt-4">
-        <div class="row">
+    <body class="p-4">
 
-            <!-- LEFT PRODUCT IMAGE SCROLLABLE -->
-            <div class="col-md-6 product-left">
-                <img src="<%= product.image %>" alt="<%= product.item_name %>">
-            </div>
+        <div class="product-container mt-4">
+            <div class="row">
 
-            <!-- RIGHT PRODUCT DETAILS -->
-            <div class="col-md-6 product-right">
-
-                <!-- Company -->
-                <h2 class="text-secondary mb-0"><%= product.company %></h2>
-
-                <!-- Item Name -->
-                <h3 class="fw-bold mt-1"><%= product.item_name %></h3>
-
-                <!-- Rating -->
-                <p class="mt-2 fs-5">
-                    ⭐ <span class="fw-bold"><%= product.rating.stars %></span>
-                    (<%= product.rating.count %> ratings)
-                </p>
-
-                <hr>
-
-                <!-- Price Section -->
-                <h2 class="fw-bold">
-                    ₹<%= product.current_price %> 
-                    <span class="text-muted fs-4">
-                        <del>₹<%= product.original_price %></del>
-                    </span>
-                    <span class="text-success fs-5 fw-bold">
-                        <%= product.discount_percentage %>% OFF
-                    </span>
-                </h2>
-
-                <p class="text-secondary">(inclusive of all taxes)</p>
-
-                <hr>
-
-                <!-- Delivery -->
-                <p class="fs-5"><b>Delivery by:</b> <%= product.delivery_date %></p>
-
-                <!-- Return -->
-                <p class="fs-5"><b>Return period:</b> <%= product.return_period %> days</p>
-
-                <hr>
-
-                <!-- Buttons -->
-                <div class="d-flex gap-3 mt-4">
-                    <button class="btn btn-danger px-4 py-3 fs-5">
-                        Buy Now
-                    </button>
-
-                    <button class="btn btn-primary px-4 py-3 fs-5">
-                        🛒 Add to Cart
-                    </button>
+                <!-- LEFT PRODUCT IMAGE SCROLLABLE -->
+                <div class="col-md-6 product-left">
+                    <img src="<%= product.image %>" alt="<%= product.item_name %>">
                 </div>
 
+                <!-- RIGHT PRODUCT DETAILS -->
+                <div class="col-md-6 product-right">
+
+                    <!-- Company -->
+                    <h2 class="text-secondary mb-0">
+                        <%= product.company %>
+                    </h2>
+
+                    <!-- Item Name -->
+                    <h3 class="fw-bold mt-1">
+                        <%= product.item_name %>
+                    </h3>
+
+                    <!-- Rating -->
+                    <p class="mt-2 fs-5">
+                        ⭐ <span class="fw-bold">
+                            <%= product.rating.stars %>
+                        </span>
+                        (<%= product.rating.count %> ratings)
+                    </p>
+
+                    <hr>
+
+                    <!-- Price Section -->
+                    <h2 class="fw-bold">
+                        ₹<%= product.current_price %>
+                            <span class="text-muted fs-4">
+                                <del>₹<%= product.original_price %></del>
+                            </span>
+                            <span class="text-success fs-5 fw-bold">
+                                <%= product.discount_percentage %>% OFF
+                            </span>
+                    </h2>
+
+                    <p class="text-secondary">(inclusive of all taxes)</p>
+
+                    <hr>
+
+                    <!-- Delivery -->
+                    <p class="fs-5"><b>Delivery by:</b>
+                        <%= product.delivery_date %>
+                    </p>
+
+                    <!-- Return -->
+                    <p class="fs-5"><b>Return period:</b>
+                        <%= product.return_period %> days
+                    </p>
+
+                    <hr>
+
+                    <!-- Buttons -->
+                    <div class="d-grid gap-2 mt-4">
+                        <!-- Buy button -->
+                        <button class="btn btn-danger px-4 py-3 fs-5 w-100">Buy Now</button>
+                        <!-- AJAX Add to Cart form -->
+                        <form class="add-to-cart-form" data-id="<%= product._id %>">
+                            <button type="submit" class="btn btn-primary w-100">Add to Cart</button>
+                        </form>
+                    </div>
+
+
+                </div>
             </div>
         </div>
-    </div>
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('.add-to-cart-form').submit(function (e) {
+                    e.preventDefault(); // Prevent page reload
+                    const productId = $(this).data('id');
 
-</body>
+                    $.post(`/add-to-cart/${productId}`, function (data) {
+                        if (data.success) {
+                            // Update cart count in navbar dynamically
+                            const countElem = $('#cartCount');
+                            countElem.text(parseInt(countElem.text()) + 1);
+                            alert('Product added to cart!');
+                        } else {
+                            alert('Error adding product to cart.');
+                        }
+                    }).fail(function () {
+                        alert('Error adding product to cart.');
+                    });
+                });
+            });
+        </script>
+    </body>
