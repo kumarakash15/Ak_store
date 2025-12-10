@@ -36,8 +36,7 @@ app.get("/product",async(req,res)=>{
 app.get("/product/:id",async(req,res)=>{
     let {id}=req.params;
     const product= await Listing.findById(id)
-    console.log(product);
-    res.send("i am product")
+    res.render("./listings/show.ejs",{product})
 })
 
 app.listen(port,()=>{

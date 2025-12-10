@@ -1,29 +1,72 @@
-<%layout("/layout/bollerplate")%>
+<% layout("/layout/bollerplate") %>
 
-    <body>
-        <div class="row mt-3">
-            <div class="col-8 offset-3">
-                <h3>Listing Details</h3>
+<style>
+    
+</style>
+
+<body class="p-4">
+
+    <div class="product-container mt-4">
+        <div class="row">
+
+            <!-- LEFT PRODUCT IMAGE SCROLLABLE -->
+            <div class="col-md-6 product-left">
+                <img src="<%= product.image %>" alt="<%= product.item_name %>">
             </div>
-            <div class="card col-6 offset-3 show-card">
-                <img src="<%= listing.image.url %>" class="card-img-top show-img" alt="<%= listing.image.filename %>">
-                <div class="card-body">
-                    <p class="card-text">
-                        <b>
-                            <%= listing.title %>
-                        </b><br>
-                        <b>About:</b><%= listing.description %><br>
-                            <b>Price:</b>&#8377;<%= listing.price.toLocaleString("en-IN") %><br>
-                                <b>Location</b><%= listing.location %><br>
-                                    <b>Country:</b><%= listing.country %>
-                    </p>
+
+            <!-- RIGHT PRODUCT DETAILS -->
+            <div class="col-md-6 product-right">
+
+                <!-- Company -->
+                <h2 class="text-secondary mb-0"><%= product.company %></h2>
+
+                <!-- Item Name -->
+                <h3 class="fw-bold mt-1"><%= product.item_name %></h3>
+
+                <!-- Rating -->
+                <p class="mt-2 fs-5">
+                    ⭐ <span class="fw-bold"><%= product.rating.stars %></span>
+                    (<%= product.rating.count %> ratings)
+                </p>
+
+                <hr>
+
+                <!-- Price Section -->
+                <h2 class="fw-bold">
+                    ₹<%= product.current_price %> 
+                    <span class="text-muted fs-4">
+                        <del>₹<%= product.original_price %></del>
+                    </span>
+                    <span class="text-success fs-5 fw-bold">
+                        <%= product.discount_percentage %>% OFF
+                    </span>
+                </h2>
+
+                <p class="text-secondary">(inclusive of all taxes)</p>
+
+                <hr>
+
+                <!-- Delivery -->
+                <p class="fs-5"><b>Delivery by:</b> <%= product.delivery_date %></p>
+
+                <!-- Return -->
+                <p class="fs-5"><b>Return period:</b> <%= product.return_period %> days</p>
+
+                <hr>
+
+                <!-- Buttons -->
+                <div class="d-flex gap-3 mt-4">
+                    <button class="btn btn-danger px-4 py-3 fs-5">
+                        Buy Now
+                    </button>
+
+                    <button class="btn btn-primary px-4 py-3 fs-5">
+                        🛒 Add to Cart
+                    </button>
                 </div>
+
             </div>
         </div>
-        <div class="btns">
-            <a href="/listings/<%= listing._id %>/edit" class="btn btn-primary col-1 offset-3">Edit</a><br><br>
-            <form method="post" action="/listings/<%= listing._id %>?_method=DELETE">
-                <button class="btn btn-dark del-btn offset-3">Delete</button>
-            </form>
-        </div>
-    </body>
+    </div>
+
+</body>

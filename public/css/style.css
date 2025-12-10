@@ -186,3 +186,34 @@ hr {
 .card-text{
     font-weight: 400;
 }
+
+/* show page */
+/* LEFT SIDE IMAGE CONTAINER */
+    .product-left {
+        height: 80vh;
+        overflow-y: scroll;
+        padding-right: 10px;
+        border-right: 1px solid #e2e2e2;
+    }
+
+    .product-left img {
+        width: 100%;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    /* RIGHT CONTENT */
+    .product-right {
+        padding-left: 40px;
+    }
+
+    /* PAGE WRAPPER LIKE MYNTRA */
+    .product-container {
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    /* Hide scrollbar (Myntra style) */
+    .product-left::-webkit-scrollbar {
+        display: none;
+    }
