@@ -62,20 +62,10 @@ app.post("/add-to-cart/:id", async (req, res) => {
         } else {
             await Cart.create({ productId });
         }
-        return res.send(`
-            <script>
-                alert("Product added to cart successfully!");
-                window.history.back();
-            </script>
-        `);
+        res.json({ success: true });
     } catch (err) {
         console.log(err);
-        return res.send(`
-            <script>
-                alert("Error adding product to cart.");
-                window.history.back(); 
-            </script>
-        `);
+        res.status(500).json({ success: false });
     }
 });
 
