@@ -1,0 +1,62 @@
+<% layout("/layout/bollerplate") %>
+
+<body class="p-4">
+    <div class="container mt-5">
+        <div class="row">
+            <!-- Product Image -->
+            <div class="col-md-6">
+                <img src="<%= product.image %>" class="img-fluid" alt="<%= product.item_name %>">
+            </div>
+
+            <!-- Product Details & Form -->
+            <div class="col-md-6">
+                <h3><%= product.company %></h3>
+                <h2><%= product.item_name %></h2>
+                <p>Price: ₹<span id="unitPrice"><%= product.current_price %></span></p>
+
+                <!-- Quantity & Total -->
+                <div class="mb-3">
+                    <label for="quantity" class="form-label">Quantity:</label>
+                    <input type="number" id="quantity" class="form-control w-25" value="1" min="1">
+                </div>
+
+                <p>Total Price: ₹<span id="totalPrice"><%= product.current_price %></span></p>
+
+                <hr>
+
+                <!-- User Info Form -->
+                <form id="buyNowForm" action="/buynow/<%= product._id %>" method="POST">
+                    <input type="hidden" name="quantity" id="formQuantity" value="1">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name:</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mobile" class="form-label">Mobile Number:</label>
+                        <input type="tel" name="mobile" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address:</label>
+                        <textarea name="address" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Place Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const unitPrice = parseFloat(document.getElementById('unitPrice').innerText);
+        const quantityInput = document.getElementById('quantity');
+        const totalPriceElem = document.getElementById('totalPrice');
+        const formQuantity = document.getElementById('formQuantity');
+
+        quantityInput.addEventListener('input', () => {
+            let qty = parseInt(quantityInput.value);
+            if (qty < 1) qty = 1;
+            const total = qty * unitPrice;
+            totalPriceElem.innerText = total.toFixed(2);
+            formQuantity.value = qty; // update hidden input for form submission
+        });
+    </script>
+</body>

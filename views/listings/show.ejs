@@ -1,9 +1,5 @@
 <% layout("/layout/bollerplate") %>
 
-    <style>
-
-    </style>
-
     <body class="p-4">
 
         <div class="product-container mt-4">
@@ -67,7 +63,8 @@
                     <!-- Buttons -->
                     <div class="d-grid gap-2 mt-4">
                         <!-- Buy button -->
-                        <button class="btn btn-danger px-4 py-3 fs-5 w-100">Buy Now</button>
+                        <!-- Buy button -->
+                        <a href="/buynow/<%= product._id %>" class="btn btn-success w-100">Buy Now</a>
                         <!-- AJAX Add to Cart form -->
                         <form class="add-to-cart-form" data-id="<%= product._id %>">
                             <button type="submit" class="btn btn-primary w-100">Add to Cart</button>

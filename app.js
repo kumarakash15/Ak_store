@@ -69,6 +69,59 @@ app.post("/add-to-cart/:id", async (req, res) => {
     }
 });
 
+app.get("/cart", async (req, res) => {
+    try {
+        const cartItems = await Cart.find().populate("productId");
+        res.render("./listings/cart.ejs", { cartItems });
+    } catch (err) {
+        console.log(err);
+        res.send("Error loading cart");
+    }
+});
+
+// Increase quantity
+app.post("/cart/increase/:id", async (req, res) => {
+    await Cart.findByIdAndUpdate(req.params.id, { $inc: { quantity: 1 } });
+    res.sendStatus(200);
+});
+
+// Decrease quantity
+app.post("/cart/decrease/:id", async (req, res) => {
+    const item = await Cart.findById(req.params.id);
+    if (item.quantity > 1) {
+        await Cart.findByIdAndUpdate(req.params.id, { $inc: { quantity: -1 } });
+    } else {
+        await Cart.findByIdAndDelete(req.params.id);
+    }
+    res.sendStatus(200);
+});
+
+app.get("/buynow/:id", async (req, res) => {
+    const { id } = req.params;
+    const product = await Listing.findById(id);
+    res.render("./listings/buynow.ejs", { product });
+});
+app.post("/buynow/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, mobile, address, quantity } = req.body;
+
+        // Here, you can save order to DB (create Order model)
+        // For now, just simulate success
+        console.log("Order details:", { productId: id, name, mobile, address, quantity });
+
+        res.send(`
+            <script>
+                alert('Order placed successfully!');
+                window.location.href = '/product';
+            </script>
+        `);
+    } catch (err) {
+        console.log(err);
+        res.send("Error placing order");
+    }
+});
+
 app.listen(port,()=>{
     console.log(`app listing on port ${port}`);
 })

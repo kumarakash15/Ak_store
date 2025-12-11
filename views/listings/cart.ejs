@@ -1,30 +1,100 @@
-<% layout('/layout/bollerplate') %>
+<% layout("/layout/bollerplate") %>
+<body class="p-4">
 
-<h2 class="text-center mt-4">Your Cart</h2>
+<h2 class="mb-4">My Shopping Bag (<%= cartItems.length %>)</h2>
 
-<div class="container mt-4">
-    <% if (cartItems.length === 0) { %>
-        <h4 class="text-center text-muted">Your cart is empty</h4>
-    <% } %>
+<div class="cart-container">
 
-    <% cartItems.forEach(item => { %>
-        <div class="card p-3 mb-3">
-            <div class="row">
+    <!-- LEFT SIDE (Products) -->
+    <div class="cart-left">
 
-                <div class="col-md-2">
-                    <img src="<%= item.productId.image %>" class="img-fluid">
-                </div>
+        <% if(cartItems.length === 0){ %>
+            <h3>Your cart is empty 😔</h3>
+        <% } %>
 
-                <div class="col-md-8">
-                    <h5><%= item.productId.company %></h5>
-                    <p><%= item.productId.item_name %></p>
-                    <p>₹<%= item.productId.current_price %></p>
-                </div>
+        <% 
+        let totalMRP = 0;
+        let totalDiscount = 0;
+        let finalPrice = 0;
+        %>
 
-                <div class="col-md-2">
-                    <p>Qty: <%= item.quantity %></p>
+        <% cartItems.forEach(item => { 
+            totalMRP += item.productId.original_price * item.quantity;
+            finalPrice += item.productId.current_price * item.quantity;
+            totalDiscount += (item.productId.original_price - item.productId.current_price) * item.quantity;
+        %>
+
+        <div class="cart-item">
+            <a href="/product/<%= item.productId._id %>">
+                <img src="<%= item.productId.image %>" alt="product">
+            </a>
+
+            <div style="flex:1;">
+                <h5><%= item.productId.company %></h5>
+                <p><%= item.productId.item_name %></p>
+
+                <h4>
+                    ₹<%= item.productId.current_price %>
+                    <span class="text-muted fs-6"><del>₹<%= item.productId.original_price %></del></span>
+                    <span class="text-success fw-bold">(<%= item.productId.discount_percentage %>% OFF)</span>
+                </h4>
+
+                <!-- Quantity -->
+                <div class="qty-box mt-2">
+                    <button class="qty-btn decrease" data-id="<%= item._id %>">-</button>
+                    <span class="fw-bold"><%= item.quantity %></span>
+                    <button class="qty-btn increase" data-id="<%= item._id %>">+</button>
                 </div>
             </div>
         </div>
-    <% }) %>
+
+        <% }) %>
+    </div>
+
+    <!-- RIGHT SIDE (Price Summary) -->
+    <div class="cart-right">
+        <h5 class="mb-3">Price Details</h5>
+
+        <div class="price-row">
+            <span>Total MRP</span>
+            <span>₹<%= totalMRP %></span>
+        </div>
+
+        <div class="price-row">
+            <span>Discount</span>
+            <span class="text-success">- ₹<%= totalDiscount %></span>
+        </div>
+
+        <hr>
+
+        <div class="price-row fw-bold fs-5">
+            <span>Total Amount</span>
+            <span>₹<%= finalPrice %></span>
+        </div>
+
+        <button class="place-btn mt-3">PLACE ORDER</button>
+
+        <a href="/shop">
+            <button class="continue-btn mt-2">Continue Shopping</button>
+        </a>
+    </div>
+
 </div>
+
+
+<!-- AJAX Increase/Decrease -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+<script>
+$(".increase").click(function () {
+    const id = $(this).data("id");
+    $.post(`/cart/increase/${id}`, () => location.reload());
+});
+
+$(".decrease").click(function () {
+    const id = $(this).data("id");
+    $.post(`/cart/decrease/${id}`, () => location.reload());
+});
+</script>
+
+</body>
