@@ -9,10 +9,14 @@
   "author": "Akash",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "ejs-mate": "^4.0.0",
     "express": "^5.1.0",
+    "express-session": "^1.18.2",
     "method-override": "^3.0.0",
-    "mongoosh": "^0.0.7"
+    "mongoosh": "^0.0.7",
+    "twilio": "^5.10.7"
   }
 }

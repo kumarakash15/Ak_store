@@ -1,0 +1,211 @@
+<% layout("/layout/bollerplate") %>
+
+    <body>
+        <div class="container mt-3">
+            <div class="row">
+
+                <!-- LEFT: ORDER + ADDRESS -->
+                <div class="col-md-7">
+
+                    <!-- PRODUCT SUMMARY -->
+                    <div class="card shadow-sm mb-4 p-3">
+                        <h4>Order Summary</h4>
+
+                        <div class="d-flex mt-3">
+                            <img src="<%= product.image %>"
+                                style="width:110px;height:110px;border-radius:10px;object-fit:cover">
+
+                            <div class="ms-3">
+                                <h5>
+                                    <%= product.item_name %>
+                                </h5>
+                                <p class="text-muted">
+                                    <%= product.company %>
+                                </p>
+                                <p class="fw-bold">₹ <%= product.current_price %>
+                                </p>
+                                <p>Qty: <%= order.quantity %>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADDRESS -->
+                    <div class="card shadow-sm p-3">
+                        <h4>Delivery Address</h4>
+
+                        <p class="fw-bold">
+                            <%= order.name %>
+                        </p>
+                        <p>
+                            <%= order.house %>, <%= order.locality %>,
+                                    <%= order.city %> - <%= order.pincode %><br>
+                                            <%= order.state %>
+                        </p>
+                        <p class="fw-bold">Mobile: <%= order.mobile %>
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT: PAYMENT OPTIONS -->
+                <div class="col-md-5">
+                    <div class="card shadow-sm p-4">
+
+                        <h4>Payment Options</h4>
+
+                        <!-- UPI -->
+                        <div class="form-check mt-3 text-muted">
+                            <input class="form-check-input" type="radio" disabled>
+                            <label class="form-check-label">
+                                UPI (Google Pay / PhonePe / Paytm)
+                                <span class="badge bg-secondary ms-2">Unavailable</span>
+                            </label>
+                        </div>
+
+                        <!-- CARD -->
+                        <div class="form-check mt-2 text-muted">
+                            <input class="form-check-input" type="radio" disabled>
+                            <label class="form-check-label">
+                                Credit / Debit Card
+                                <span class="badge bg-secondary ms-2">Unavailable</span>
+                            </label>
+                        </div>
+
+                        <!-- NET BANKING -->
+                        <div class="form-check mt-2 text-muted">
+                            <input class="form-check-input" type="radio" disabled>
+                            <label class="form-check-label">
+                                Net Banking
+                                <span class="badge bg-secondary ms-2">Unavailable</span>
+                            </label>
+                        </div>
+
+                        <hr>
+
+                        <!-- CASH ON DELIVERY -->
+                        <div class="form-check mt-3">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="codRadio">
+                            <label class="form-check-label fw-bold">
+                                Cash on Delivery (COD)
+                            </label>
+                            <p class="text-muted small mb-0">
+                                OTP verification required
+                            </p>
+                        </div>
+
+                        <!-- SEND OTP -->
+                        <button id="sendOtpBtn" class="btn btn-primary w-100 mt-3" disabled>
+                            Send OTP
+                        </button>
+
+                        <!-- OTP BOX -->
+                        <div id="otpBox" style="display:none" class="mt-3">
+                            <input type="number" id="otpInput" class="form-control" placeholder="Enter OTP">
+
+                            <button id="verifyOtpBtn" class="btn btn-success w-100 mt-3">
+                                Confirm Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <script>
+            const sendOtpBtn = document.getElementById("sendOtpBtn");
+            const otpBox = document.getElementById("otpBox");
+            const otpInput = document.getElementById("otpInput");
+            const verifyOtpBtn = document.getElementById("verifyOtpBtn");
+            const codRadio = document.getElementById("codRadio");
+
+            let timerInterval;
+            let timeLeft = 60;
+
+            // Enable OTP button only if COD selected
+            codRadio.addEventListener("change", () => {
+                if (codRadio.checked) {
+                    sendOtpBtn.disabled = false;
+                }
+            });
+
+            // Countdown Timer
+            function startTimer() {
+                timeLeft = 60;
+                sendOtpBtn.disabled = true;
+                sendOtpBtn.innerText = `Resend OTP in ${timeLeft}s`;
+
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    sendOtpBtn.innerText = `Resend OTP in ${timeLeft}s`;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        sendOtpBtn.disabled = false;
+                        sendOtpBtn.innerText = "Resend OTP";
+                    }
+                }, 1000);
+            }
+
+            // SEND OTP
+            sendOtpBtn.addEventListener("click", async () => {
+                if (!codRadio.checked) {
+                    alert("Please select Cash on Delivery");
+                    return;
+                }
+
+                try {
+                    const res = await fetch("/send-otp", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            mobileNumber: "<%= order.mobile %>",
+                            orderId: "<%= order._id %>"
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (data.success) {
+                        alert("OTP sent successfully!");
+                        otpBox.style.display = "block";
+                        startTimer();
+                    } else {
+                        alert(data.message);
+                        sendOtpBtn.disabled = false;
+                    }
+                } catch (err) {
+                    alert("Network error. Try again.");
+                    sendOtpBtn.disabled = false;
+                }
+            });
+
+            // VERIFY OTP
+            verifyOtpBtn.addEventListener("click", async () => {
+                const userOtp = otpInput.value.trim();
+
+                if (!userOtp) {
+                    alert("Please enter OTP");
+                    return;
+                }
+
+                const res = await fetch("/verify-otp", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        userOtp,
+                        orderId: "<%= order._id %>"
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    window.location.href = "/order-success";
+                } else {
+                    alert(data.message || "Invalid OTP");
+                }
+            });
+        </script>
+
+    </body>
