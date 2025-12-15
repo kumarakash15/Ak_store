@@ -201,9 +201,24 @@ app.post("/cart/buynow", async (req, res) => {
 });
 
 app.get("/buynow/:id", async (req, res) => {
+  try {
     const { id } = req.params;
     const product = await Listing.findById(id);
-    res.render("./listings/buynow.ejs", { product });
+    if (!product) {
+      return res.redirect("/product");
+    }
+    const cartItems = [
+      {
+        productId: product,
+        quantity: 1
+      }
+    ];
+    res.render("./listings/buynow.ejs", { cartItems });
+
+  } catch (err) {
+    console.error(err);
+    res.redirect("/product");
+  }
 });
 
 app.post("/buynow/:id", async (req, res) => {
