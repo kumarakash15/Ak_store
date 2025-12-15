@@ -10,6 +10,7 @@ const ejsMate = require("ejs-mate");
 const axios = require("axios");
 const session = require("express-session");
 require('dotenv').config();
+const cron = require("node-cron");
 const mongo_url = "mongodb://127.0.0.1:27017/akstore";
 
 app.set("view engine", "ejs");
@@ -35,6 +36,25 @@ main().then(() => {
 async function main() {
     await mongoose.connect(mongo_url);
 }
+// 🕒 AUTO-CANCEL PENDING ORDERS AFTER 10 MINUTES
+cron.schedule("*/1 * * * *", async () => {
+  try {
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+
+    const result = await Order.updateMany(
+      {
+        status: "Pending",
+        isVerified: false,
+        orderDate: { $lt: tenMinutesAgo }
+      },
+      {
+        $set: { status: "Cancelled" }
+      }
+    );
+  } catch (err) {
+    console.error("Auto-cancel job error:", err);
+  }
+});
 
 app.use(async (req, res, next) => {
     try {
@@ -108,6 +128,78 @@ app.post("/cart/decrease/:id", async (req, res) => {
     res.sendStatus(200);
 });
 
+app.get("/cart/buynow", async (req, res) => {
+  try {
+    const cartItems = await Cart.find().populate("productId");
+
+    if (cartItems.length === 0) {
+      return res.redirect("/cart");
+    }
+
+    res.render("./listings/buynow.ejs", { cartItems });
+  } catch (err) {
+    console.error(err);
+    res.send("Error loading checkout");
+  }
+});
+
+app.post("/cart/buynow", async (req, res) => {
+  try {
+    const {
+      name,
+      mobile,
+      pincode,
+      state,
+      city,
+      locality,
+      house,
+      landmark
+    } = req.body;
+
+    // 1️⃣ Get cart items with product details
+    const cartItems = await Cart.find().populate("productId");
+
+    if (cartItems.length === 0) {
+      return res.redirect("/cart");
+    }
+
+    // 2️⃣ Convert cart → order items
+    const items = cartItems.map(item => ({
+      productId: item.productId._id,
+      quantity: item.quantity
+    }));
+
+    // 3️⃣ Create order
+    const newOrder = await Order.create({
+      items,
+      name,
+      mobile,
+      pincode,
+      state,
+      city,
+      locality,
+      house,
+      landmark,
+      status: "Pending",
+      isVerified: false
+    });
+
+    // 4️⃣ Clear cart AFTER order creation
+    await Cart.deleteMany({});
+
+    // 5️⃣ Populate products for payment page
+    const order = await Order.findById(newOrder._id)
+      .populate("items.productId");
+
+    // 6️⃣ Render payment page
+    res.render("./listings/payment.ejs", { order });
+
+  } catch (err) {
+    console.error("CART BUY ERROR:", err);
+    res.send(`<script>alert("Order failed");history.back();</script>`);
+  }
+});
+
 app.get("/buynow/:id", async (req, res) => {
     const { id } = req.params;
     const product = await Listing.findById(id);
@@ -168,9 +260,6 @@ app.post("/send-otp", async (req, res) => {
       expiresAt: Date.now() + 5 * 60 * 1000,
       attempts: 0
     };
-
-    console.log("2FACTOR OTP SENT:", response.data);
-
     res.json({
       success: true,
       message: "OTP sent successfully"

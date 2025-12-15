@@ -1,100 +1,107 @@
 <% layout("/layout/bollerplate") %>
-<body class="p-4">
 
-<h2 class="mb-4">My Shopping Bag (<%= cartItems.length %>)</h2>
+    <body class="p-4">
 
-<div class="cart-container">
+        <h2 class="mb-4">My Shopping Bag (<%= cartItems.length %>)</h2>
 
-    <!-- LEFT SIDE (Products) -->
-    <div class="cart-left">
+        <div class="cart-container">
 
-        <% if(cartItems.length === 0){ %>
-            <h3>Your cart is empty 😔</h3>
-        <% } %>
+            <!-- LEFT SIDE (Products) -->
+            <div class="cart-left">
 
-        <% 
-        let totalMRP = 0;
-        let totalDiscount = 0;
-        let finalPrice = 0;
-        %>
+                <% if(cartItems.length===0){ %>
+                    <h3>Your cart is empty 😔</h3>
+                    <% } %>
 
-        <% cartItems.forEach(item => { 
-            totalMRP += item.productId.original_price * item.quantity;
-            finalPrice += item.productId.current_price * item.quantity;
-            totalDiscount += (item.productId.original_price - item.productId.current_price) * item.quantity;
-        %>
+                        <% let totalMRP=0; let totalDiscount=0; let finalPrice=0; %>
 
-        <div class="cart-item">
-            <a href="/product/<%= item.productId._id %>">
-                <img src="<%= item.productId.image %>" alt="product">
-            </a>
+                            <% cartItems.forEach(item=> {
+                                totalMRP += item.productId.original_price * item.quantity;
+                                finalPrice += item.productId.current_price * item.quantity;
+                                totalDiscount += (item.productId.original_price - item.productId.current_price) *
+                                item.quantity;
+                                %>
 
-            <div style="flex:1;">
-                <h5><%= item.productId.company %></h5>
-                <p><%= item.productId.item_name %></p>
+                                <div class="cart-item">
+                                    <a href="/product/<%= item.productId._id %>">
+                                        <img src="<%= item.productId.image %>" alt="product">
+                                    </a>
 
-                <h4>
-                    ₹<%= item.productId.current_price %>
-                    <span class="text-muted fs-6"><del>₹<%= item.productId.original_price %></del></span>
-                    <span class="text-success fw-bold">(<%= item.productId.discount_percentage %>% OFF)</span>
-                </h4>
+                                    <div style="flex:1;">
+                                        <h5>
+                                            <%= item.productId.company %>
+                                        </h5>
+                                        <p>
+                                            <%= item.productId.item_name %>
+                                        </p>
 
-                <!-- Quantity -->
-                <div class="qty-box mt-2">
-                    <button class="qty-btn decrease" data-id="<%= item._id %>">-</button>
-                    <span class="fw-bold"><%= item.quantity %></span>
-                    <button class="qty-btn increase" data-id="<%= item._id %>">+</button>
-                </div>
+                                        <h4>
+                                            ₹<%= item.productId.current_price %>
+                                                <span class="text-muted fs-6"><del>₹<%= item.productId.original_price %>
+                                                    </del></span>
+                                                <span class="text-success fw-bold">(<%=
+                                                        item.productId.discount_percentage %>% OFF)</span>
+                                        </h4>
+
+                                        <!-- Quantity -->
+                                        <div class="qty-box mt-2">
+                                            <button class="qty-btn decrease" data-id="<%= item._id %>">-</button>
+                                            <span class="fw-bold">
+                                                <%= item.quantity %>
+                                            </span>
+                                            <button class="qty-btn increase" data-id="<%= item._id %>">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <% }) %>
             </div>
+
+            <!-- RIGHT SIDE (Price Summary) -->
+            <div class="cart-right">
+                <h5 class="mb-3">Price Details</h5>
+
+                <div class="price-row">
+                    <span>Total MRP</span>
+                    <span>₹<%= totalMRP %></span>
+                </div>
+
+                <div class="price-row">
+                    <span>Discount</span>
+                    <span class="text-success">- ₹<%= totalDiscount %></span>
+                </div>
+
+                <hr>
+
+                <div class="price-row fw-bold fs-5">
+                    <span>Total Amount</span>
+                    <span>₹<%= finalPrice %></span>
+                </div>
+
+                <a href="/cart/buynow">
+                    <button class="place-btn mt-3">PLACE ORDER</button>
+                </a>
+                <a href="/product">
+                    <button class="continue-btn mt-2">Continue Shopping</button>
+                </a>
+            </div>
+
         </div>
 
-        <% }) %>
-    </div>
 
-    <!-- RIGHT SIDE (Price Summary) -->
-    <div class="cart-right">
-        <h5 class="mb-3">Price Details</h5>
+        <!-- AJAX Increase/Decrease -->
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
-        <div class="price-row">
-            <span>Total MRP</span>
-            <span>₹<%= totalMRP %></span>
-        </div>
+        <script>
+            $(".increase").click(function () {
+                const id = $(this).data("id");
+                $.post(`/cart/increase/${id}`, () => location.reload());
+            });
 
-        <div class="price-row">
-            <span>Discount</span>
-            <span class="text-success">- ₹<%= totalDiscount %></span>
-        </div>
+            $(".decrease").click(function () {
+                const id = $(this).data("id");
+                $.post(`/cart/decrease/${id}`, () => location.reload());
+            });
+        </script>
 
-        <hr>
-
-        <div class="price-row fw-bold fs-5">
-            <span>Total Amount</span>
-            <span>₹<%= finalPrice %></span>
-        </div>
-
-        <button class="place-btn mt-3">PLACE ORDER</button>
-
-        <a href="/shop">
-            <button class="continue-btn mt-2">Continue Shopping</button>
-        </a>
-    </div>
-
-</div>
-
-
-<!-- AJAX Increase/Decrease -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-
-<script>
-$(".increase").click(function () {
-    const id = $(this).data("id");
-    $.post(`/cart/increase/${id}`, () => location.reload());
-});
-
-$(".decrease").click(function () {
-    const id = $(this).data("id");
-    $.post(`/cart/decrease/${id}`, () => location.reload());
-});
-</script>
-
-</body>
+    </body>
