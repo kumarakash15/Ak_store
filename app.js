@@ -129,49 +129,54 @@ app.post("/cart/decrease/:id", async (req, res) => {
 });
 
 app.get("/cart/buynow", async (req, res) => {
-  try {
-    const cartItems = await Cart.find().populate("productId");
+  const cartItems = await Cart.find().populate("productId");
 
-    if (cartItems.length === 0) {
-      return res.redirect("/cart");
-    }
+  if (cartItems.length === 0) return res.redirect("/cart");
 
-    res.render("./listings/buynow.ejs", { cartItems });
-  } catch (err) {
-    console.error(err);
-    res.send("Error loading checkout");
-  }
+  // ✅ save to session
+  req.session.checkoutItems = cartItems.map(item => ({
+    productId: item.productId._id,
+    quantity: item.quantity
+  }));
+
+  res.render("listings/buynow.ejs", { cartItems });
 });
 
-app.post("/cart/buynow", async (req, res) => {
+app.get("/buynow/:id", async (req, res) => {
+  const product = await Listing.findById(req.params.id);
+  if (!product) return res.redirect("/product");
+
+  // ✅ save single product to session
+  req.session.checkoutItems = [{
+    productId: product._id,
+    quantity: 1
+  }];
+
+  const cartItems = [{
+    productId: product,
+    quantity: 1
+  }];
+
+  res.render("listings/buynow.ejs", { cartItems });
+});
+
+app.post("/checkout", async (req, res) => {
   try {
     const {
-      name,
-      mobile,
-      pincode,
-      state,
-      city,
-      locality,
-      house,
-      landmark
+      name, mobile, pincode,
+      state, city, locality, house, landmark
     } = req.body;
 
-    // 1️⃣ Get cart items with product details
-    const cartItems = await Cart.find().populate("productId");
+    // ✅ GET ITEMS FROM SESSION
+    const sessionItems = req.session.checkoutItems;
 
-    if (cartItems.length === 0) {
+    if (!sessionItems || sessionItems.length === 0) {
       return res.redirect("/cart");
     }
 
-    // 2️⃣ Convert cart → order items
-    const items = cartItems.map(item => ({
-      productId: item.productId._id,
-      quantity: item.quantity
-    }));
-
-    // 3️⃣ Create order
-    const newOrder = await Order.create({
-      items,
+    // ✅ CREATE ORDER
+    const order = await Order.create({
+      items: sessionItems,
       name,
       mobile,
       pincode,
@@ -184,71 +189,21 @@ app.post("/cart/buynow", async (req, res) => {
       isVerified: false
     });
 
-    // 4️⃣ Clear cart AFTER order creation
+    // ✅ CLEAR CART ONLY AFTER ORDER (SAFE)
     await Cart.deleteMany({});
 
-    // 5️⃣ Populate products for payment page
-    const order = await Order.findById(newOrder._id)
+    // ✅ CLEAR SESSION
+    req.session.checkoutItems = null;
+
+    // ✅ POPULATE PRODUCTS
+    const populatedOrder = await Order.findById(order._id)
       .populate("items.productId");
 
-    // 6️⃣ Render payment page
-    res.render("./listings/payment.ejs", { order });
-
+    // ✅ RENDER PAYMENT
+    res.render("listings/payment.ejs", { order: populatedOrder });
   } catch (err) {
-    console.error("CART BUY ERROR:", err);
+    console.error("CHECKOUT ERROR:", err);
     res.send(`<script>alert("Order failed");history.back();</script>`);
-  }
-});
-
-app.get("/buynow/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const product = await Listing.findById(id);
-    if (!product) {
-      return res.redirect("/product");
-    }
-    const cartItems = [
-      {
-        productId: product,
-        quantity: 1
-      }
-    ];
-    res.render("./listings/buynow.ejs", { cartItems });
-
-  } catch (err) {
-    console.error(err);
-    res.redirect("/product");
-  }
-});
-
-app.post("/buynow/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const {
-      name, mobile, pincode, state,
-      city, locality, house, landmark, quantity
-    } = req.body;
-
-    const order = await Order.create({
-      productId: id,
-      quantity,
-      name,
-      mobile,
-      pincode,
-      state,
-      city,
-      locality,
-      house,
-      landmark,
-      status: "Pending"
-    });
-
-    const product = await Listing.findById(id);
-    res.render("./listings/payment.ejs", { order, product });
-
-  } catch (err) {
-    console.error(err);
-    res.send(`<script>alert("Error placing order");history.back();</script>`);
   }
 });
 

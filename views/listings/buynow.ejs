@@ -2,10 +2,11 @@
 
 <body class="bg-light">
 
+<!-- ================= PRODUCTS + PRICE ================= -->
 <div class="container py-4">
   <div class="row">
 
-    <!-- 🛒 CART PRODUCTS -->
+    <!-- 🛒 PRODUCTS -->
     <div class="col-md-7">
       <% let totalAmount = 0; %>
 
@@ -17,32 +18,27 @@
         %>
 
         <div class="card p-3 shadow-sm mb-3">
-          <div class="row">
+          <div class="row align-items-center">
             <div class="col-md-4">
               <img src="<%= product.image %>" class="img-fluid rounded">
             </div>
 
             <div class="col-md-8">
-              <h5><%= product.company %></h5>
-              <p class="text-muted"><%= product.item_name %></p>
+              <h6 class="fw-bold mb-1"><%= product.company %></h6>
+              <p class="text-muted mb-1"><%= product.item_name %></p>
 
-              <h4>
+              <h5 class="mb-1">
                 ₹<%= product.current_price %>
                 <span class="text-muted fs-6">
                   <del>₹<%= product.original_price %></del>
                 </span>
-                <span class="text-success fw-bold">
+                <span class="text-success fs-6 fw-bold">
                   (<%= product.discount_percentage %>% OFF)
                 </span>
-              </h4>
+              </h5>
 
-              <p class="mt-2">
-                Quantity: <strong><%= item.quantity %></strong>
-              </p>
-
-              <p class="fw-bold">
-                Item Total: ₹<%= itemTotal %>
-              </p>
+              <p class="mb-1">Qty: <strong><%= item.quantity %></strong></p>
+              <p class="fw-bold mb-0">Item Total: ₹<%= itemTotal %></p>
             </div>
           </div>
         </div>
@@ -52,7 +48,7 @@
     <!-- 💰 PRICE DETAILS -->
     <div class="col-md-5">
       <div class="card shadow-sm p-3">
-        <h5 class="mb-3">PRICE DETAILS</h5>
+        <h5 class="fw-bold mb-3">PRICE DETAILS</h5>
 
         <div class="d-flex justify-content-between mb-2">
           <span>Total Items</span>
@@ -76,57 +72,58 @@
   </div>
 </div>
 
-<!-- 🚚 DELIVERY FORM -->
-<div class="container">
-  <div class="card shadow-sm mt-4 p-3">
-    <h5 class="mb-3">DELIVERY DETAILS</h5>
+<!-- ================= DELIVERY DETAILS ================= -->
+<div class="container mb-5">
+  <div class="card shadow-sm p-4">
+    <h5 class="fw-bold mb-3">DELIVERY DETAILS</h5>
 
-    <form id="cartBuyForm" action="/cart/buynow" method="POST">
+    <!-- 🔥 IMPORTANT PART -->
+    <form id="cartBuyForm" action="/checkout" method="POST">
 
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold">Full Name</label>
+          <label class="fw-bold">Full Name</label>
           <input type="text" name="name" class="form-control" required>
         </div>
 
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold">Mobile Number</label>
+          <label class="fw-bold">Mobile Number</label>
           <input type="tel" name="mobile" class="form-control" maxlength="10" required>
         </div>
       </div>
 
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold">State</label>
+          <label class="fw-bold">State</label>
           <input type="text" name="state" class="form-control" required>
         </div>
 
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold">City / District</label>
+          <label class="fw-bold">City</label>
           <input type="text" name="city" class="form-control" required>
         </div>
       </div>
 
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold">Pincode</label>
+          <label class="fw-bold">Pincode</label>
           <input type="text" name="pincode" class="form-control" maxlength="6" required>
         </div>
 
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold">Locality / Area</label>
+          <label class="fw-bold">Locality</label>
           <input type="text" name="locality" class="form-control" required>
         </div>
       </div>
 
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold">House / Street</label>
+          <label class="fw-bold">House / Street</label>
           <input type="text" name="house" class="form-control" required>
         </div>
 
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold">Landmark (Optional)</label>
+          <label class="fw-bold">Landmark (Optional)</label>
           <input type="text" name="landmark" class="form-control">
         </div>
       </div>
@@ -135,7 +132,7 @@
   </div>
 </div>
 
-<!-- ✅ FIXED PLACE ORDER BUTTON -->
+<!-- ================= PLACE ORDER ================= -->
 <div class="fixed-bottom bg-white shadow-lg p-3 text-end">
   <button type="submit" form="cartBuyForm" class="btn btn-success px-5 py-2 fs-5">
     PLACE ORDER
