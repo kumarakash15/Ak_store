@@ -296,6 +296,18 @@ app.get("/order", async (req, res) => {
     }
 });
 
+app.get("/order/:id", async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id).populate("items.productId");
+        if (!order) return res.redirect("/order");
+
+        res.render("listings/order-details.ejs", { order });
+    } catch (err) {
+        console.error(err);
+        res.redirect("/order");
+    }
+});
+
 app.listen(port, () => {
     console.log(`app listing on port ${port}`);
 })

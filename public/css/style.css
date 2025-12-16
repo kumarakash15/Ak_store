@@ -560,3 +560,67 @@ hr {
     background: #ff3f6c;
     color: #fff;
 }
+
+/* order page buuton */
+.btn-myntra {
+    background-color: #f57224; /* Myntra orange */
+    color: white;
+    font-weight: 500;
+    border: none;
+    border-radius: 25px;
+    padding: 8px 20px;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-myntra:hover {
+    background-color: #e55a00;
+    transform: translateY(-2px);
+}
+
+.btn-myntra-outline {
+    background-color: transparent;
+    color: #f57224;
+    font-weight: 500;
+    border: 2px solid #f57224;
+    border-radius: 25px;
+    padding: 8px 20px;
+    transition: background 0.3s, color 0.3s, transform 0.2s;
+}
+
+.btn-myntra-outline:hover {
+    background-color: #f57224;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* order success page */
+.product-img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* Step tracker */
+.progress-step-container .step {
+    font-size: 14px;
+    text-align: center;
+    flex: 1;
+    position: relative;
+    color: #999;
+    font-weight: 500;
+}
+.progress-step-container .step.active {
+    font-weight: 600;
+    color: #f57224;
+}
+.progress-step-container .step::before {
+    content: '●';
+    display: block;
+    margin: 0 auto 8px;
+    font-size: 18px;
+    color: #ccc;
+}
+.progress-step-container .step.active::before {
+    color: #f57224;
+}
