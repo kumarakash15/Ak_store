@@ -69,13 +69,13 @@ app.use(async (req, res, next) => {
 });
 
 app.get("/", async (req, res) => {
-    //const allproduct= await Listing.find({})
-    res.send("i am root goto to /product")
+    const allproduct= await Listing.find({})
+    res.render("./listings/index.ejs", { allproduct })
 })
 
 app.get("/product", async (req, res) => {
     const allproduct = await Listing.find({})
-    res.render("./listings/index.ejs", { allproduct })
+    res.render("./listings/dashboard.ejs", { allproduct })
 });
 
 app.get("/product/:id", async (req, res) => {
@@ -329,6 +329,16 @@ app.post("/verify-otp", async (req, res) => {
 
 app.get("/order-success", async (req, res) => {
   res.render("listings/order-success");
+});
+
+app.get("/order", async (req, res) => {
+    try {
+        const orders = await Order.find().populate("items.productId").sort({ orderDate: -1 });
+        res.render("listings/order.ejs", { orders });
+    } catch (err) {
+        console.error(err);
+        res.send("Error loading orders");
+    }
 });
 
 app.listen(port, () => {

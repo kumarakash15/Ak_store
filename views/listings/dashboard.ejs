@@ -48,9 +48,37 @@
                                 </span>
                                 <span style="color:green;">(<%= product.discount_percentage %>% OFF)</span>
                         </p>
+
+                        <div class="d-grid gap-2">
+                            <!-- AJAX Add to Cart form -->
+                            <form class="add-to-cart-form" data-id="<%= product._id %>">
+                                <button type="submit" class="btn btn-primary w-100">Add to Cart</button>
+                            </form>
+                            <!-- Buy button -->
+                            <a href="/buynow/<%= product._id %>" class="btn btn-success w-100">Buy Now</a>
+                        </div>
+
+
                     </div>
                 </div>
                 <% } %>
         </div>
         <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('.add-to-cart-form').submit(function (e) {
+                    e.preventDefault(); // Prevent page reload
+                    const productId = $(this).data('id');
+
+                    $.post(`/add-to-cart/${productId}`, function (data) {
+                        // Update cart count in navbar dynamically
+                        const countElem = $('#cartCount');
+                        countElem.text(parseInt(countElem.text()) + 1);
+                        alert('Product added to cart!');
+                    }).fail(function () {
+                        alert('Error adding product to cart.');
+                    });
+                });
+            });
+        </script>
     </body>
