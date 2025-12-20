@@ -1,56 +1,88 @@
 <nav class="myntra-navbar sticky-top">
-    <div class="nav-top">
-        <div class="nav-left">
-            <a href="/" class="nav-logo">AK STORE</a>
-            <ul class="nav-menu">
-                <li><a href="#">Men</a></li>
-                <li><a href="#">Women</a></li>
-                <li><a href="#">Kids</a></li>
-                <li><a href="#">Home & Living</a></li>
-                <li><a href="#">Beauty</a></li>
-            </ul>
-        </div>
-        <div class="nav-search">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" placeholder="Search for products, brands and more">
-        </div>
-        <div class="nav-icons">
-            <!-- PROFILE -->
-            <div class="icon-box profile-wrapper">
-                <i class="fa-regular fa-user"></i>
-                <span>Profile</span>
-                <!-- PROFILE DROPDOWN -->
-                <div class="profile-dropdown">
-                    <div class="profile-header">
-                        <p class="welcome">Welcome</p>
-                        <p class="login-text">To access account and manage orders</p>
-                        <a href="/login" class="login-btn">LOGIN / SIGNUP</a>
-                    </div>
-                    <ul class="profile-links">
-                        <li><a href="/order">Orders</a></li>
-                        <li><a href="#">Wishlist</a></li>
-                        <li><a href="#">Gift Cards</a></li>
-                        <li><a href="#">Contact Us</a></li>
-                        <li class="divider"></li>
-                        <li><a href="#">Myntra Insider</a></li>
-                    </ul>
-                </div>
-            </div>
-            <!-- WISHLIST -->
-            <div class="icon-box">
-                <i class="fa-regular fa-heart"></i>
-                <span>Wishlist</span>
-            </div>
-            <!-- BAG -->
-            <a href="/cart" class="text-decoration-none text-dark">
-                <div class="icon-box position-relative">
-                    <i class="fa-solid fa-bag-shopping"></i>
-                    <span>Bag</span>
-                    <span id="cartCount" class="cart-badge">
-                        <%= cartCount || 0 %>
-                    </span>
-                </div>
-            </a>
-        </div>
+  <div class="nav-top">
+
+    <!-- LEFT -->
+    <div class="nav-left">
+      <a href="/" class="nav-logo">AK STORE</a>
+      <ul class="nav-menu">
+        <li><a href="#">Men</a></li>
+        <li><a href="#">Women</a></li>
+        <li><a href="#">Kids</a></li>
+        <li><a href="#">Home & Living</a></li>
+        <li><a href="#">Beauty</a></li>
+      </ul>
     </div>
+
+    <!-- SEARCH -->
+    <div class="nav-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Search for products, brands and more">
+    </div>
+
+    <!-- RIGHT ICONS -->
+    <div class="nav-icons">
+
+      <!-- PROFILE -->
+      <div class="icon-box profile-wrapper">
+        <i class="fa-regular fa-user"></i>
+        <span>Profile</span>
+
+        <!-- PROFILE DROPDOWN -->
+        <div class="profile-dropdown">
+
+          <!-- IF USER LOGGED IN -->
+          <% if (session.userId) { %>
+            <div class="profile-header">
+              <p class="welcome">Hello, <strong><%= session.userName %></strong></p>
+              <p class="login-text">Welcome back to AK Store</p>
+              <a href="/logout" class="login-btn logout-btn">LOGOUT</a>
+            </div>
+
+            <ul class="profile-links">
+              <li><a href="/order">Orders</a></li>
+              <li><a href="#">Wishlist</a></li>
+              <li><a href="#">Gift Cards</a></li>
+              <li><a href="#">Contact Us</a></li>
+            </ul>
+
+          <!-- IF USER NOT LOGGED IN -->
+          <% } else { %>
+            <div class="profile-header">
+              <p class="welcome">Welcome</p>
+              <p class="login-text">To access account and manage orders</p>
+              <a href="/login" class="login-btn">LOGIN / SIGNUP</a>
+            </div>
+
+            <ul class="profile-links">
+                <li><a href="#">Orders</a></li>
+              <li><a href="#">Wishlist</a></li>
+              <li><a href="#">Gift Cards</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li class="divider"></li>
+              <li><a href="#">Myntra Insider</a></li>
+            </ul>
+          <% } %>
+
+        </div>
+      </div>
+
+      <!-- WISHLIST -->
+      <div class="icon-box">
+        <i class="fa-regular fa-heart"></i>
+        <span>Wishlist</span>
+      </div>
+
+      <!-- BAG -->
+      <a href="/cart" class="text-decoration-none text-dark">
+        <div class="icon-box position-relative">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span>Bag</span>
+          <span id="cartCount" class="cart-badge">
+            <%= cartCount || 0 %>
+          </span>
+        </div>
+      </a>
+
+    </div>
+  </div>
 </nav>

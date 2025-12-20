@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const port = 5500;
 const { Listing, Cart } = require("./models/listing");
 const Order = require("./models/order");
+const User = require("./models/user");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
@@ -68,10 +69,71 @@ app.use(async (req, res, next) => {
     }
 });
 
+app.use((req, res, next) => {
+  res.locals.session = req.session;
+  next();
+});
+
 app.get("/", async (req, res) => {
     const allproduct= await Listing.find({})
     res.render("./listings/index.ejs", { allproduct })
 })
+
+app.get("/signup", (req, res) => {
+  res.render("./listings/signup.ejs");
+});
+
+app.post("/signup", async (req, res) => {
+  try {
+    const { name, email, mobile, password } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.send(`<script>alert("Email already registered");history.back();</script>`);
+    }
+
+    await User.create({
+      name,
+      email,
+      mobile,
+      password // plain text
+    });
+
+    res.redirect("/login");
+  } catch (err) {
+    console.error(err);
+    res.send("Signup error");
+  }
+});
+
+app.get("/login", (req, res) => {
+  res.render("./listings/login.ejs");
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user || user.password !== password) {
+      return res.send(`<script>alert("Invalid credentials");history.back();</script>`);
+    }
+    req.session.userId = user._id;
+    req.session.userName = user.name;
+
+    res.redirect("/");
+  } catch (err) {
+    console.error(err);
+    res.send("Login error");
+  }
+});
+
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/");
+  });
+});
 
 app.get("/product", async (req, res) => {
     const allproduct = await Listing.find({})

@@ -1,0 +1,11 @@
+<% layout("/layout/bollerplate") %>
+
+<div class="auth-container">
+  <h2>Login</h2>
+  <form action="/login" method="POST">
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit">LOGIN</button>
+  </form>
+  <p>New to AK Store? <a href="/signup">Create account</a></p>
+</div>
