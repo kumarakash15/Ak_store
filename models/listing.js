@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-// LISTING SCHEMA
+/* =====================
+   LISTING SCHEMA
+===================== */
 const ListingSchema = new Schema({
   image: {
     type: String,
@@ -47,26 +49,30 @@ const ListingSchema = new Schema({
   }
 });
 
-// CART SCHEMA
-const cartSchema = new mongoose.Schema({
+/* =====================
+   CART SCHEMA (FIXED)
+===================== */
+const cartSchema = new Schema({
   productId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Listing",
     required: true
   },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
   quantity: {
     type: Number,
     default: 1
-  },
-  userId: {
-    type: String,
-    default: "guest"
   }
 });
 
-// MODELS
+/* =====================
+   MODELS
+===================== */
 const Listing = mongoose.model("Listing", ListingSchema);
 const Cart = mongoose.model("Cart", cartSchema);
 
-// EXPORT BOTH MODELS
 module.exports = { Listing, Cart };

@@ -23,19 +23,19 @@ app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 app.use(session({
-    secret: "akstore",
-    resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 10 * 60 * 1000 }
+  secret: "akstore",
+  resave: false,
+  saveUninitialized: true,
+  cookie: { maxAge: 10 * 60 * 1000 }
 }));
 
 main().then(() => {
-    console.log("connected to DB");
+  console.log("connected to DB");
 }).catch((err) => {
-    console.log(err);
+  console.log(err);
 })
 async function main() {
-    await mongoose.connect(mongo_url);
+  await mongoose.connect(mongo_url);
 }
 // 🕒 AUTO-CANCEL PENDING ORDERS AFTER 10 MINUTES
 cron.schedule("*/1 * * * *", async () => {
@@ -58,15 +58,23 @@ cron.schedule("*/1 * * * *", async () => {
 });
 
 app.use(async (req, res, next) => {
-    try {
-        const count = await Cart.countDocuments();
-        res.locals.cartCount = count;
-        next();
-    } catch (err) {
-        console.log("Cart Count Error:", err);
-        res.locals.cartCount = 0;
-        next();
+  try {
+    if (!req.session.userId) {
+      res.locals.cartCount = 0;
+      return next();
     }
+
+    const count = await Cart.countDocuments({
+      userId: req.session.userId
+    });
+
+    res.locals.cartCount = count;
+    next();
+  } catch (err) {
+    console.log("Cart Count Error:", err);
+    res.locals.cartCount = 0;
+    next();
+  }
 });
 
 app.use((req, res, next) => {
@@ -74,9 +82,29 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  if (!req.session.userId && req.method === "GET") {
+    // Save last visited product page
+    if (req.originalUrl.startsWith("/product/")) {
+      req.session.redirectTo = req.originalUrl;
+    }
+  }
+  next();
+});
+
+const isLoggedIn = (req, res, next) => {
+  if (!req.session.userId) {
+    return res.status(401).json({
+      success: false,
+      message: "Please login or signup first"
+    });
+  }
+  next();
+};
+
 app.get("/", async (req, res) => {
-    const allproduct= await Listing.find({})
-    res.render("./listings/index.ejs", { allproduct })
+  const allproduct = await Listing.find({})
+  res.render("./listings/index.ejs", { allproduct })
 })
 
 app.get("/signup", (req, res) => {
@@ -119,10 +147,16 @@ app.post("/login", async (req, res) => {
     if (!user || user.password !== password) {
       return res.send(`<script>alert("Invalid credentials");history.back();</script>`);
     }
+
     req.session.userId = user._id;
     req.session.userName = user.name;
 
-    res.redirect("/");
+    // 🔁 Redirect back if exists
+    const redirectUrl = req.session.redirectTo || "/product";
+    req.session.redirectTo = null;
+
+    res.redirect(redirectUrl);
+
   } catch (err) {
     console.error(err);
     res.send("Login error");
@@ -136,58 +170,74 @@ app.get("/logout", (req, res) => {
 });
 
 app.get("/product", async (req, res) => {
-    const allproduct = await Listing.find({})
-    res.render("./listings/dashboard.ejs", { allproduct })
+  const allproduct = await Listing.find({})
+  res.render("./listings/dashboard.ejs", { allproduct })
 });
 
 app.get("/product/:id", async (req, res) => {
-    let { id } = req.params;
-    const product = await Listing.findById(id)
-    res.render("./listings/show.ejs", { product })
+  let { id } = req.params;
+  const product = await Listing.findById(id)
+  res.render("./listings/show.ejs", { product })
 })
 
-app.post("/add-to-cart/:id", async (req, res) => {
-    try {
-        const productId = req.params.id;
-        const existingItem = await Cart.findOne({ productId });
-        if (existingItem) {
-            existingItem.quantity += 1;
-            await existingItem.save();
-        } else {
-            await Cart.create({ productId });
-        }
-        res.json({ success: true });
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ success: false });
+app.post("/add-to-cart/:id", isLoggedIn, async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    const existingItem = await Cart.findOne({
+      productId,
+      userId: req.session.userId
+    });
+
+    if (existingItem) {
+      existingItem.quantity += 1;
+      await existingItem.save();
+    } else {
+      await Cart.create({
+        productId,
+        userId: req.session.userId
+      });
     }
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
 });
 
 app.get("/cart", async (req, res) => {
-    try {
-        const cartItems = await Cart.find().populate("productId");
-        res.render("./listings/cart.ejs", { cartItems });
-    } catch (err) {
-        console.log(err);
-        res.send("Error loading cart");
-    }
+  if (!req.session.userId) {
+    return res.redirect("/login");
+  }
+  try {
+    const cartItems = await Cart.find({
+      userId: req.session.userId
+    }).populate("productId");
+
+    res.render("./listings/cart.ejs", { cartItems });
+  } catch (err) {
+    console.log(err);
+    res.send("Error loading cart");
+  }
 });
 
 // Increase quantity
 app.post("/cart/increase/:id", async (req, res) => {
-    await Cart.findByIdAndUpdate(req.params.id, { $inc: { quantity: 1 } });
-    res.sendStatus(200);
+  await Cart.findByIdAndUpdate(req.params.id, { $inc: { quantity: 1 } });
+  res.sendStatus(200);
 });
 
 // Decrease quantity
 app.post("/cart/decrease/:id", async (req, res) => {
-    const item = await Cart.findById(req.params.id);
-    if (item.quantity > 1) {
-        await Cart.findByIdAndUpdate(req.params.id, { $inc: { quantity: -1 } });
-    } else {
-        await Cart.findByIdAndDelete(req.params.id);
-    }
-    res.sendStatus(200);
+  const item = await Cart.findById(req.params.id);
+  if (item.quantity > 1) {
+    await Cart.findByIdAndUpdate(req.params.id, { $inc: { quantity: -1 } });
+  } else {
+    await Cart.findByIdAndDelete(req.params.id);
+  }
+  res.sendStatus(200);
 });
 
 app.get("/cart/buynow", async (req, res) => {
@@ -238,6 +288,8 @@ app.post("/checkout", async (req, res) => {
 
     // ✅ CREATE ORDER
     const order = await Order.create({
+      userId: req.session.userId, // ✅ IMPORTANT
+
       items: sessionItems,
       name,
       mobile,
@@ -349,27 +401,42 @@ app.get("/order-success", async (req, res) => {
 });
 
 app.get("/order", async (req, res) => {
-    try {
-        const orders = await Order.find().populate("items.productId").sort({ orderDate: -1 });
-        res.render("listings/order.ejs", { orders });
-    } catch (err) {
-        console.error(err);
-        res.send("Error loading orders");
-    }
+  if (!req.session.userId) {
+    return res.redirect("/login");
+  }
+
+  try {
+    const orders = await Order.find({
+      userId: req.session.userId   // ✅ FILTER BY USER
+    })
+      .populate("items.productId")
+      .sort({ orderDate: -1 });
+
+    res.render("listings/order.ejs", { orders });
+
+  } catch (err) {
+    console.error(err);
+    res.send("Error loading orders");
+  }
 });
 
 app.get("/order/:id", async (req, res) => {
-    try {
-        const order = await Order.findById(req.params.id).populate("items.productId");
-        if (!order) return res.redirect("/order");
+  try {
+    const order = await Order.findOne({
+      _id: req.params.id,
+      userId: req.session.userId // ✅ SECURITY CHECK
+    }).populate("items.productId");
 
-        res.render("listings/order-details.ejs", { order });
-    } catch (err) {
-        console.error(err);
-        res.redirect("/order");
-    }
+    if (!order) return res.redirect("/order");
+
+    res.render("listings/order-details.ejs", { order });
+
+  } catch (err) {
+    console.error(err);
+    res.redirect("/order");
+  }
 });
 
 app.listen(port, () => {
-    console.log(`app listing on port ${port}`);
+  console.log(`app listing on port ${port}`);
 })

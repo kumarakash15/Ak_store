@@ -2,7 +2,14 @@ const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
 
-  // 🛒 MULTIPLE PRODUCTS IN ONE ORDER
+  // 👤 LINK ORDER TO USER
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+
+  // 🛒 MULTIPLE PRODUCTS
   items: [
     {
       productId: {
@@ -19,54 +26,31 @@ const orderSchema = new mongoose.Schema({
   ],
 
   // 👤 USER DETAILS
-  name: {
-    type: String,
-    required: true
-  },
-  mobile: {
-    type: String,
-    required: true
-  },
+  name: String,
+  mobile: String,
 
-  // 📍 DELIVERY ADDRESS
-  pincode: {
-    type: String,
-    required: true
-  },
-  state: {
-    type: String,
-    required: true
-  },
-  city: {
-    type: String,
-    required: true
-  },
-  locality: {
-    type: String,
-    required: true
-  },
-  house: {
-    type: String,
-    required: true
-  },
-  landmark: {
-    type: String
-  },
+  // 📍 ADDRESS
+  pincode: String,
+  state: String,
+  city: String,
+  locality: String,
+  house: String,
+  landmark: String,
 
-  // 🔐 OTP VERIFICATION
+  // 🔐 OTP
   isVerified: {
     type: Boolean,
     default: false
   },
 
-  // 💳 PAYMENT METHOD
+  // 💳 PAYMENT
   paymentMethod: {
     type: String,
     enum: ["Cash on Delivery", "Online"],
     default: "Cash on Delivery"
   },
 
-  // 📦 ORDER STATUS
+  // 📦 STATUS
   status: {
     type: String,
     enum: ["Pending", "Confirmed", "Cancelled", "Delivered"],

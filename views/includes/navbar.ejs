@@ -27,11 +27,11 @@
         <i class="fa-regular fa-user"></i>
         <span>Profile</span>
 
-        <!-- PROFILE DROPDOWN -->
+        <!-- DROPDOWN -->
         <div class="profile-dropdown">
 
-          <!-- IF USER LOGGED IN -->
           <% if (session.userId) { %>
+            <!-- LOGGED IN -->
             <div class="profile-header">
               <p class="welcome">Hello, <strong><%= session.userName %></strong></p>
               <p class="login-text">Welcome back to AK Store</p>
@@ -45,8 +45,8 @@
               <li><a href="#">Contact Us</a></li>
             </ul>
 
-          <!-- IF USER NOT LOGGED IN -->
           <% } else { %>
+            <!-- NOT LOGGED IN -->
             <div class="profile-header">
               <p class="welcome">Welcome</p>
               <p class="login-text">To access account and manage orders</p>
@@ -54,8 +54,8 @@
             </div>
 
             <ul class="profile-links">
-                <li><a href="#">Orders</a></li>
-              <li><a href="#">Wishlist</a></li>
+              <li><a href="/login">Orders</a></li>
+              <li><a href="/login">Wishlist</a></li>
               <li><a href="#">Gift Cards</a></li>
               <li><a href="#">Contact Us</a></li>
               <li class="divider"></li>
@@ -66,7 +66,7 @@
         </div>
       </div>
 
-      <!-- WISHLIST -->
+      <!-- WISHLIST ICON -->
       <div class="icon-box">
         <i class="fa-regular fa-heart"></i>
         <span>Wishlist</span>

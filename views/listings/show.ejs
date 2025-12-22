@@ -57,21 +57,32 @@
                     <p class="fs-5"><b>Return period:</b>
                         <%= product.return_period %> days
                     </p>
-
                     <hr>
-
                     <!-- Buttons -->
-                    <div class="d-grid gap-2 mt-4">
-                        <!-- Buy button -->
-                        <!-- Buy button -->
-                        <a href="/buynow/<%= product._id %>" class="btn btn-success w-100">Buy Now</a>
-                        <!-- AJAX Add to Cart form -->
-                        <form class="add-to-cart-form" data-id="<%= product._id %>">
-                            <button type="submit" class="btn btn-primary w-100">Add to Cart</button>
-                        </form>
+                    <div class="mt-4">
+                        <% if (session.userId) { %>
+                            <!-- USER LOGGED IN -->
+                            <div class="d-grid gap-2">
+                                <a href="/buynow/<%= product._id %>" class="btn btn-success w-100">
+                                    Buy Now
+                                </a>
+                                <form class="add-to-cart-form" data-id="<%= product._id %>">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        Add to Cart
+                                    </button>
+                                </form>
+                            </div>
+                            <% } else { %>
+                                <!-- USER NOT LOGGED IN -->
+                                <div class="alert alert-warning text-center">
+                                    <strong>Please login</strong> to buy or add items to your cart.
+                                </div>
+
+                                <a href="/login" class="btn btn-outline-primary w-100">
+                                    Login / Signup
+                                </a>
+                                <% } %>
                     </div>
-
-
                 </div>
             </div>
         </div>
@@ -79,20 +90,21 @@
         <script>
             $(document).ready(function () {
                 $('.add-to-cart-form').submit(function (e) {
-                    e.preventDefault(); // Prevent page reload
+                    e.preventDefault();
+
                     const productId = $(this).data('id');
 
                     $.post(`/add-to-cart/${productId}`, function (data) {
                         if (data.success) {
-                            // Update cart count in navbar dynamically
                             const countElem = $('#cartCount');
                             countElem.text(parseInt(countElem.text()) + 1);
                             alert('Product added to cart!');
                         } else {
-                            alert('Error adding product to cart.');
+                            alert(data.message || 'Error adding product to cart.');
                         }
                     }).fail(function () {
-                        alert('Error adding product to cart.');
+                        alert('Please login first.');
+                        window.location.href = "/login";
                     });
                 });
             });
