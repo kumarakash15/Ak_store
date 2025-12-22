@@ -10,6 +10,8 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const axios = require("axios");
 const session = require("express-session");
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
 require('dotenv').config();
 const cron = require("node-cron");
 const mongo_url = "mongodb://127.0.0.1:27017/akstore";
@@ -241,8 +243,9 @@ app.post("/cart/decrease/:id", async (req, res) => {
 });
 
 app.get("/cart/buynow", async (req, res) => {
-  const cartItems = await Cart.find().populate("productId");
-
+  const cartItems = await Cart.find({
+    userId: req.session.userId
+  }).populate("productId");
   if (cartItems.length === 0) return res.redirect("/cart");
 
   // ✅ save to session
@@ -304,7 +307,7 @@ app.post("/checkout", async (req, res) => {
     });
 
     // ✅ CLEAR CART ONLY AFTER ORDER (SAFE)
-    await Cart.deleteMany({});
+    await Cart.deleteMany({ userId: req.session.userId });
 
     // ✅ CLEAR SESSION
     req.session.checkoutItems = null;
@@ -434,6 +437,109 @@ app.get("/order/:id", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.redirect("/order");
+  }
+});
+
+app.post("/order/:id/cancel", async (req, res) => {
+  try {
+    const orderId = req.params.id;
+
+    // Fetch order
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).send("Order not found");
+    }
+
+    // Check if order is already Delivered or Cancelled
+    if (order.status === "Delivered") {
+      return res.status(400).send("Order has already been delivered and cannot be cancelled");
+    }
+    if (order.status === "Cancelled") {
+      return res.status(400).send("Order is already cancelled");
+    }
+
+    // Update order status
+    order.status = "Cancelled";
+    order.cancelledAt = new Date();
+
+    await order.save();
+
+    // Redirect back to order details page
+    res.redirect(`/order/${orderId}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/order/:id/invoice", async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const order = await Order.findById(orderId).populate("items.productId");
+    if (!order) {
+      return res.status(404).send("Order not found");
+    }
+    const doc = new PDFDocument({ size: "A4", margin: 50 });
+
+    // Set response headers
+    res.setHeader("Content-Disposition", `attachment; filename=Invoice-${order._id}.pdf`);
+    res.setHeader("Content-Type", "application/pdf");
+
+    // Pipe PDF to response
+    doc.pipe(res);
+
+    // ====== Header ======
+    doc
+      .fontSize(20)
+      .text("AkStore Invoice", { align: "center" })
+      .moveDown();
+
+    doc.fontSize(12).text(`Order ID: ${order._id}`);
+    doc.text(`Order Date: ${order.orderDate.toLocaleString()}`);
+    doc.text(`Status: ${order.status}`);
+    doc.text(`Payment Method: ${order.paymentMethod}`);
+    doc.moveDown();
+
+    // ====== Delivery Address ======
+    doc.fontSize(14).text("Delivery Address:", { underline: true }).moveDown(0.5);
+    doc.fontSize(12)
+      .text(`${order.name}`)
+      .text(`${order.house}, ${order.locality}`)
+      .text(`${order.city} - ${order.pincode}, ${order.state}`)
+      .text(`Mobile: ${order.mobile}`)
+      .moveDown();
+
+    // ====== Products Table ======
+    doc.fontSize(14).text("Products:", { underline: true }).moveDown(0.5);
+
+    let totalAmount = 0;
+    order.items.forEach((item, index) => {
+      if (item.productId) {
+        const product = item.productId;
+        const itemTotal = product.current_price * item.quantity;
+        totalAmount += itemTotal;
+
+        doc
+          .fontSize(12)
+          .text(`${index + 1}. ${product.item_name} (${product.company})`)
+          .text(`   Quantity: ${item.quantity} | Price: ₹${product.current_price} | Total: ₹${itemTotal}`)
+          .moveDown(0.5);
+      }
+    });
+
+    doc.moveDown().fontSize(12).text(`Total Amount (COD): ₹${totalAmount}`, { align: "right" });
+
+    // ====== Footer ======
+    doc.moveDown(2)
+      .fontSize(10)
+      .text("Thank you for shopping with AkStore!", { align: "center" });
+
+    // Finalize PDF
+    doc.end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
   }
 });
 

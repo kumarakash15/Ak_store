@@ -2,14 +2,12 @@ const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
 
-  // 👤 LINK ORDER TO USER
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true
   },
 
-  // 🛒 MULTIPLE PRODUCTS
   items: [
     {
       productId: {
@@ -25,11 +23,11 @@ const orderSchema = new mongoose.Schema({
     }
   ],
 
-  // 👤 USER DETAILS
+  // User Details
   name: String,
   mobile: String,
 
-  // 📍 ADDRESS
+  // Address
   pincode: String,
   state: String,
   city: String,
@@ -37,31 +35,20 @@ const orderSchema = new mongoose.Schema({
   house: String,
   landmark: String,
 
-  // 🔐 OTP
-  isVerified: {
-    type: Boolean,
-    default: false
-  },
+  // Payment
+  isVerified: { type: Boolean, default: false },
+  paymentMethod: { type: String, enum: ["Cash on Delivery", "Online"], default: "Cash on Delivery" },
 
-  // 💳 PAYMENT
-  paymentMethod: {
-    type: String,
-    enum: ["Cash on Delivery", "Online"],
-    default: "Cash on Delivery"
-  },
+  // Status
+  status: { type: String, enum: ["Pending", "Confirmed", "Cancelled", "Delivered"], default: "Pending" },
 
-  // 📦 STATUS
-  status: {
-    type: String,
-    enum: ["Pending", "Confirmed", "Cancelled", "Delivered"],
-    default: "Pending"
-  },
+  // Timestamps
+  orderDate: { type: Date, default: Date.now },
+  confirmedAt: { type: Date },
+  shippedAt: { type: Date },
+  deliveredAt: { type: Date },
+  cancelledAt: { type: Date }
 
-  // 🕒 DATE
-  orderDate: {
-    type: Date,
-    default: Date.now
-  }
 });
 
 module.exports = mongoose.model("Order", orderSchema);
