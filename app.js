@@ -14,6 +14,9 @@ const PDFDocument = require("pdfkit");
 const fs = require("fs");
 require('dotenv').config();
 const cron = require("node-cron");
+const qs = require("qs");
+const crypto = require('crypto');
+const MongoStore = require("connect-mongo").default;
 const mongo_url = "mongodb://127.0.0.1:27017/akstore";
 
 app.set("view engine", "ejs");
@@ -24,12 +27,6 @@ app.use(express.json());
 app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
-app.use(session({
-  secret: "akstore",
-  resave: false,
-  saveUninitialized: true,
-  cookie: { maxAge: 10 * 60 * 1000 }
-}));
 
 main().then(() => {
   console.log("connected to DB");
@@ -39,6 +36,22 @@ main().then(() => {
 async function main() {
   await mongoose.connect(mongo_url);
 }
+
+app.use(session({
+  name: "akstore.sid",
+  secret: "akstore",
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: mongo_url,
+    ttl: 24 * 60 * 60
+  }),
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000,
+    httpOnly: true
+  }
+}));
+
 // 🕒 AUTO-CANCEL PENDING ORDERS AFTER 10 MINUTES
 cron.schedule("*/1 * * * *", async () => {
   try {
@@ -58,6 +71,37 @@ cron.schedule("*/1 * * * *", async () => {
     console.error("Auto-cancel job error:", err);
   }
 });
+
+async function sendSMS(mobile, orderId, totalAmount) {
+  try {
+    if (!mobile.startsWith("91")) {
+      mobile = "91" + mobile;
+    }
+    const url = `https://2factor.in/API/V1/${process.env.TWO_FACTOR_API_KEY}/ADDON_SERVICES/SEND/TSMS`;
+
+    const payload = qs.stringify({
+      From: "AKSTRS",                      // ✅ EXACT Sender ID
+      To: mobile,                         // ✅ 91XXXXXXXXXX
+      TemplateName: "AK STORE ORDER CONFIRM", // ✅ EXACT template name
+      VAR1: orderId,                      // #VAR1#
+      VAR2: String(totalAmount)            // #VAR2# (digits only)
+    });
+
+    const response = await axios.post(url, payload, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    });
+
+    console.log("SMS API RESPONSE:", response.data);
+
+  } catch (error) {
+    console.error(
+      "SMS SEND ERROR:",
+      error.response?.data || error.message
+    );
+  }
+}
 
 app.use(async (req, res, next) => {
   try {
@@ -96,17 +140,19 @@ app.use((req, res, next) => {
 
 const isLoggedIn = (req, res, next) => {
   if (!req.session.userId) {
-    return res.status(401).json({
-      success: false,
-      message: "Please login or signup first"
-    });
+    return res.redirect("/");
   }
   next();
 };
 
-app.get("/", async (req, res) => {
-  const allproduct = await Listing.find({})
-  res.render("./listings/index.ejs", { allproduct })
+app.get("/", async (req, res, next) => {
+  try {
+    const allproduct = await Listing.find({})
+    res.render("./listings/index.ejs", { allproduct })
+  }
+  catch (err) {
+    next(err)
+  }
 })
 
 app.get("/signup", (req, res) => {
@@ -171,15 +217,24 @@ app.get("/logout", (req, res) => {
   });
 });
 
-app.get("/product", async (req, res) => {
-  const allproduct = await Listing.find({})
-  res.render("./listings/dashboard.ejs", { allproduct })
+app.get("/product", isLoggedIn, async (req, res, next) => {
+  try {
+    const allproduct = await Listing.find({});
+    res.render("./listings/dashboard.ejs", { allproduct });
+  } catch (err) {
+    next(err);
+  }
 });
 
 app.get("/product/:id", async (req, res) => {
-  let { id } = req.params;
-  const product = await Listing.findById(id)
-  res.render("./listings/show.ejs", { product })
+  try {
+    let { id } = req.params;
+    const product = await Listing.findById(id)
+    res.render("./listings/show.ejs", { product })
+  }
+  catch (err) {
+    next(err)
+  }
 })
 
 app.post("/add-to-cart/:id", isLoggedIn, async (req, res) => {
@@ -226,9 +281,14 @@ app.get("/cart", async (req, res) => {
 });
 
 // Increase quantity
-app.post("/cart/increase/:id", async (req, res) => {
-  await Cart.findByIdAndUpdate(req.params.id, { $inc: { quantity: 1 } });
-  res.sendStatus(200);
+app.post("/cart/increase/:id", async (req, res, next) => {
+  try {
+    await Cart.findByIdAndUpdate(req.params.id, { $inc: { quantity: 1 } });
+    res.sendStatus(200);
+  }
+  catch (err) {
+    next(err)
+  }
 });
 
 // Decrease quantity
@@ -289,10 +349,14 @@ app.post("/checkout", async (req, res) => {
       return res.redirect("/cart");
     }
 
+    // ✅ GENERATE A PURELY NUMERIC ORDER ID
+    // This is the safest format for DLT compliance.
+    const simpleOrderId = Math.floor(1000000000 + Math.random() * 9000000000).toString(); // 10-digit number
+
     // ✅ CREATE ORDER
     const order = await Order.create({
-      userId: req.session.userId, // ✅ IMPORTANT
-
+      userId: req.session.userId,
+      orderId: simpleOrderId, // ✅ USE THE NEW NUMERIC ID
       items: sessionItems,
       name,
       mobile,
@@ -373,8 +437,6 @@ app.post("/verify-otp", async (req, res) => {
     if (otpData.orderId !== orderId) {
       return res.json({ success: false, message: "Invalid OTP request" });
     }
-
-    // VERIFY WITH 2FACTOR
     const verifyRes = await axios.get(
       `https://2factor.in/API/V1/${process.env.TWO_FACTOR_API_KEY}/SMS/VERIFY/${otpData.sessionId}/${userOtp}`
     );
@@ -382,19 +444,34 @@ app.post("/verify-otp", async (req, res) => {
     if (verifyRes.data.Status !== "Success") {
       return res.json({ success: false, message: "Invalid OTP" });
     }
-
-    // ✅ OTP SUCCESS → CONFIRM ORDER
-    await Order.findByIdAndUpdate(orderId, {
-      isVerified: true,
-      status: "Confirmed"
-    });
-
+    const order = await Order.findByIdAndUpdate(
+      orderId, // Still using the _id to find the document
+      { isVerified: true, status: "Confirmed" },
+      { new: true }
+    ).populate("items.productId");
+    if (!order) {
+      return res.json({ success: false, message: "Order not found" });
+    }
+    let totalAmount = 0;
+    for (const item of order.items) {
+      totalAmount += item.productId.current_price * item.quantity;
+    }
+    totalAmount = Math.round(totalAmount);
+    await sendSMS(
+      otpData.mobile,
+      order.orderId,          
+      totalAmount
+    );
     req.session.otpData = null;
 
+    console.log(`SMS sent to: ${otpData.mobile} for Order ID: ${order.orderId}`);
     res.json({ success: true });
 
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(
+      "VERIFY OTP ERROR:",
+      error.response?.data || error.message
+    );
     res.json({ success: false, message: "Verification failed" });
   }
 });
@@ -407,10 +484,9 @@ app.get("/order", async (req, res) => {
   if (!req.session.userId) {
     return res.redirect("/login");
   }
-
   try {
     const orders = await Order.find({
-      userId: req.session.userId   // ✅ FILTER BY USER
+      userId: req.session.userId
     })
       .populate("items.productId")
       .sort({ orderDate: -1 });

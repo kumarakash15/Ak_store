@@ -1,11 +1,18 @@
+// models/order.js
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
-
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true
+  },
+
+  // ✅ ADD THIS NEW FIELD for a simple Order ID
+  orderId: {
+    type: String,
+    required: true,
+    unique: true
   },
 
   items: [
@@ -48,7 +55,6 @@ const orderSchema = new mongoose.Schema({
   shippedAt: { type: Date },
   deliveredAt: { type: Date },
   cancelledAt: { type: Date }
-
 });
 
 module.exports = mongoose.model("Order", orderSchema);
