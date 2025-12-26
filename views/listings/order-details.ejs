@@ -1,167 +1,191 @@
 <% layout("/layout/bollerplate") %>
 
-<div class="container mt-5 mb-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
+  <div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
 
-      <!-- ✅ Order Header -->
-      <div class="card shadow-sm mb-4 p-4 border-0 rounded-4 bg-light">
-        <div class="d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-center">
-            <div class="me-3" style="font-size:40px;">
-              <%= order.status === 'Cancelled' ? '❌' :
-                  order.status === 'Delivered' ? '🎉' : '📦' %>
+        <!-- ✅ Order Header -->
+        <div class="card shadow-sm mb-4 p-4 border-0 rounded-4 bg-light">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+              <div class="me-3" style="font-size:40px;">
+                <%= order.status==='Cancelled' ? '❌' : order.status==='Delivered' ? '🎉' : '📦' %>
+              </div>
+              <div>
+                <h3 class="mb-1">
+                  <%= order.status==='Pending' ? 'Order Pending' : order.status==='Confirmed' ? 'Order Confirmed' :
+                    order.status==='Shipped' ? 'Order Shipped' : order.status==='Delivered' ? 'Order Delivered'
+                    : 'Order Cancelled' %>
+                </h3>
+                <p class="text-muted mb-0">
+                  Thank you for shopping with <strong>AkStore</strong>
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 class="mb-1">
-                <%= order.status === 'Pending' ? 'Order Placed' :
-                    order.status === 'Confirmed' ? 'Order Confirmed' :
-                    order.status === 'Shipped' ? 'Order Shipped' :
-                    order.status === 'Delivered' ? 'Order Delivered' :
-                    'Order Cancelled' %>
-              </h3>
-              <p class="text-muted mb-0">
-                Thank you for shopping with <strong>AkStore</strong>
-              </p>
+
+            <!-- 🔘 Action Buttons -->
+            <div class="text-end">
+
+              <% if (order.status==='Confirmed' || order.status==='Shipped' ) { %>
+                <form action="/order/<%= order._id %>/cancel" method="POST"
+                  onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                  <button class="btn btn-outline-danger btn-sm mb-2 w-100">
+                    ❌ Cancel Order
+                  </button>
+                </form>
+                <% } %>
+
+                  <% if (order.status==='Confirmed' || order.status==='Shipped' || order.status==='Delivered' ) { %>
+                    <a href="/order/<%= order._id %>/invoice" class="btn btn-outline-primary btn-sm w-100">
+                      📄 Download Invoice
+                    </a>
+                    <% } %>
+
             </div>
-          </div>
-
-          <!-- 🔘 Action Buttons -->
-          <div class="text-end">
-            <% if (order.status !== 'Delivered' && order.status !== 'Cancelled') { %>
-              <form action="/order/<%= order._id %>/cancel" method="POST"
-                    onsubmit="return confirm('Are you sure you want to cancel this order?');">
-                <button class="btn btn-outline-danger btn-sm mb-2 w-100">
-                  ❌ Cancel Order
-                </button>
-              </form>
-            <% } %>
-
-            <a href="/order/<%= order._id %>/invoice" class="btn btn-outline-primary btn-sm w-100">
-              📄 Download Invoice
-            </a>
           </div>
         </div>
-      </div>
 
-      <!-- 🛒 Order Details -->
-      <div class="card shadow-sm mb-4 p-4 border-0 rounded-4">
-        <h4 class="mb-3">Order Details</h4>
-        <p><strong>Order ID:</strong> <%= order._id %></p>
-        <p><strong>Order Date:</strong> <%= order.orderDate.toLocaleString() %></p>
-        <p><strong>Status:</strong>
-          <span class="badge 
+        <!-- 🛒 Order Details -->
+        <div class="card shadow-sm mb-4 p-4 border-0 rounded-4">
+          <h4 class="mb-3">Order Details</h4>
+          <p><strong>Order ID:</strong>
+            <%= order._id %>
+          </p>
+          <p><strong>Order Date:</strong>
+            <%= order.orderDate.toLocaleString() %>
+          </p>
+          <p><strong>Status:</strong>
+            <span class="badge 
             <%= order.status === 'Pending' ? 'bg-warning' :
                 order.status === 'Confirmed' ? 'bg-info' :
                 order.status === 'Shipped' ? 'bg-primary' :
                 order.status === 'Delivered' ? 'bg-success' :
                 'bg-danger' %>">
-            <%= order.status %>
-          </span>
-        </p>
-      </div>
-
-      <!-- 📦 Products -->
-      <div class="card shadow-sm mb-4 p-4 border-0 rounded-4">
-        <h4 class="mb-3">Products</h4>
-        <% let totalAmount = 0; %>
-
-        <% order.items.forEach(item => { %>
-          <% if (item.productId) { 
-              const product = item.productId;
-              const itemTotal = product.current_price * item.quantity;
-              totalAmount += itemTotal;
-          %>
-            <div class="d-flex mb-3 align-items-center p-3 border rounded-3 bg-white">
-              <img src="<%= product.image %>" class="product-img" alt="product">
-              <div class="ms-3 flex-grow-1">
-                <h5 class="mb-1"><%= product.item_name %></h5>
-                <p class="text-muted mb-1"><%= product.company %></p>
-                <p class="mb-0">
-                  Qty: <%= item.quantity %> |
-                  <strong>₹ <%= itemTotal %></strong>
-                </p>
-              </div>
-            </div>
-          <% } %>
-        <% }) %>
-
-        <hr>
-        <h5 class="text-end">Total Amount (COD): ₹ <%= totalAmount %></h5>
-      </div>
-
-      <!-- 🏠 Delivery Address -->
-      <div class="card shadow-sm mb-4 p-4 border-0 rounded-4">
-        <h4 class="mb-3">Delivery Address</h4>
-        <p><strong><%= order.name %></strong></p>
-        <p class="mb-1"><%= order.house %>, <%= order.locality %></p>
-        <p class="mb-1"><%= order.city %> - <%= order.pincode %>, <%= order.state %></p>
-        <p><strong>Mobile:</strong> <%= order.mobile %></p>
-      </div>
-
-      <!-- 📍 Order Tracking -->
-      <div class="card shadow-sm mb-4 p-4 border-0 rounded-4">
-        <h4 class="mb-3">Order Tracking</h4>
-
-        <div class="progress-step-container d-flex justify-content-between position-relative mb-3">
-          <div class="step active">Order Placed</div>
-          <div class="step <%= ['Confirmed','Shipped','Delivered'].includes(order.status) ? 'active' : '' %>">Confirmed</div>
-          <div class="step <%= ['Shipped','Delivered'].includes(order.status) ? 'active' : '' %>">Shipped</div>
-          <div class="step <%= order.status === 'Delivered' ? 'active' : '' %>">Delivered</div>
+              <%= order.status %>
+            </span>
+          </p>
         </div>
 
-        <div class="progress mb-4" style="height:6px;border-radius:3px;">
-          <div class="progress-bar 
-            <%= order.status === 'Cancelled' ? 'bg-danger' : 'bg-success' %>"
-            role="progressbar"
-            style="width:
+        <!-- 📦 Products -->
+        <div class="card shadow-sm mb-4 p-4 border-0 rounded-4">
+          <h4 class="mb-3">Products</h4>
+          <% let totalAmount=0; %>
+
+            <% order.items.forEach(item=> { %>
+              <% if (item.productId) { const product=item.productId; const itemTotal=product.current_price *
+                item.quantity; totalAmount +=itemTotal; %>
+                <div class="d-flex mb-3 align-items-center p-3 border rounded-3 bg-white">
+                  <img src="<%= product.image %>" class="product-img" alt="product">
+                  <div class="ms-3 flex-grow-1">
+                    <h5 class="mb-1">
+                      <%= product.item_name %>
+                    </h5>
+                    <p class="text-muted mb-1">
+                      <%= product.company %>
+                    </p>
+                    <p class="mb-0">
+                      Qty: <%= item.quantity %> |
+                        <strong>₹ <%= itemTotal %></strong>
+                    </p>
+                  </div>
+                </div>
+                <% } %>
+                  <% }) %>
+
+                    <hr>
+                    <h5 class="text-end">Total Amount (COD): ₹ <%= totalAmount %>
+                    </h5>
+        </div>
+
+        <!-- 🏠 Delivery Address -->
+        <div class="card shadow-sm mb-4 p-4 border-0 rounded-4">
+          <h4 class="mb-3">Delivery Address</h4>
+          <p><strong>
+              <%= order.name %>
+            </strong></p>
+          <p class="mb-1">
+            <%= order.house %>, <%= order.locality %>
+          </p>
+          <p class="mb-1">
+            <%= order.city %> - <%= order.pincode %>, <%= order.state %>
+          </p>
+          <p><strong>Mobile:</strong>
+            <%= order.mobile %>
+          </p>
+        </div>
+
+        <!-- 📍 Order Tracking -->
+        <div class="card shadow-sm mb-4 p-4 border-0 rounded-4">
+          <h4 class="mb-3">Order Tracking</h4>
+
+          <div class="progress-step-container d-flex justify-content-between position-relative mb-3">
+            <div class="step active">Order Placed</div>
+            <div class="step <%= ['Confirmed','Shipped','Delivered'].includes(order.status) ? 'active' : '' %>">
+              Confirmed</div>
+            <div class="step <%= ['Shipped','Delivered'].includes(order.status) ? 'active' : '' %>">Shipped</div>
+            <div class="step <%= order.status === 'Delivered' ? 'active' : '' %>">Delivered</div>
+          </div>
+
+          <div class="progress mb-4" style="height:6px;border-radius:3px;">
+            <div class="progress-bar 
+            <%= order.status === 'Cancelled' ? 'bg-danger' : 'bg-success' %>" role="progressbar" style="width:
               <%= order.status === 'Pending' ? '25%' :
                   order.status === 'Confirmed' ? '50%' :
                   order.status === 'Shipped' ? '75%' :
                   order.status === 'Delivered' ? '100%' :
                   '25%' %>;">
+            </div>
           </div>
+
+          <!-- 🕒 Timeline -->
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between">
+              <span>📦 Order Placed</span>
+              <small>
+                <%= order.orderDate.toLocaleString() %>
+              </small>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span>✅ Confirmed</span>
+              <small>
+                <%= order.confirmedAt ? order.confirmedAt.toLocaleString() : 'Pending' %>
+              </small>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span>🚚 Shipped</span>
+              <small>
+                <%= order.shippedAt ? order.shippedAt.toLocaleString() : 'Pending' %>
+              </small>
+            </li>
+
+            <% if (order.status==='Cancelled' ) { %>
+              <li class="list-group-item d-flex justify-content-between text-danger">
+                <span>❌ Cancelled</span>
+                <small>
+                  <%= order.cancelledAt ? order.cancelledAt.toLocaleString() : '—' %>
+                </small>
+              </li>
+              <% } else { %>
+                <li class="list-group-item d-flex justify-content-between">
+                  <span>🎉 Delivered</span>
+                  <small>
+                    <%= order.deliveredAt ? order.deliveredAt.toLocaleString() : 'Pending' %>
+                  </small>
+                </li>
+                <% } %>
+          </ul>
+
+          <% if (order.status==='Cancelled' ) { %>
+            <div class="alert alert-danger mt-3">
+              This order has been cancelled. Any payment (if made) will be refunded within 5–7 business days.
+            </div>
+            <% } %>
         </div>
 
-        <!-- 🕒 Timeline -->
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item d-flex justify-content-between">
-            <span>📦 Order Placed</span>
-            <small><%= order.orderDate.toLocaleString() %></small>
-          </li>
-          <li class="list-group-item d-flex justify-content-between">
-            <span>✅ Confirmed</span>
-            <small><%= order.confirmedAt ? order.confirmedAt.toLocaleString() : 'Pending' %></small>
-          </li>
-          <li class="list-group-item d-flex justify-content-between">
-            <span>🚚 Shipped</span>
-            <small><%= order.shippedAt ? order.shippedAt.toLocaleString() : 'Pending' %></small>
-          </li>
+        <a href="/order" class="btn btn-primary w-100 rounded-4 py-2">
+          Back to Orders
+        </a>
 
-          <% if (order.status === 'Cancelled') { %>
-            <li class="list-group-item d-flex justify-content-between text-danger">
-              <span>❌ Cancelled</span>
-              <small><%= order.cancelledAt ? order.cancelledAt.toLocaleString() : '—' %></small>
-            </li>
-          <% } else { %>
-            <li class="list-group-item d-flex justify-content-between">
-              <span>🎉 Delivered</span>
-              <small><%= order.deliveredAt ? order.deliveredAt.toLocaleString() : 'Pending' %></small>
-            </li>
-          <% } %>
-        </ul>
-
-        <% if (order.status === 'Cancelled') { %>
-          <div class="alert alert-danger mt-3">
-            This order has been cancelled. Any payment (if made) will be refunded within 5–7 business days.
-          </div>
-        <% } %>
       </div>
-
-      <a href="/order" class="btn btn-primary w-100 rounded-4 py-2">
-        Back to Orders
-      </a>
-
     </div>
   </div>
-</div>

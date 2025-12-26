@@ -74,33 +74,6 @@ cron.schedule("*/1 * * * *", async () => {
   }
 });
 
-async function sendSMS(mobile, orderId, totalAmount) {
-  try {
-    if (!mobile.startsWith("91")) {
-      mobile = "91" + mobile;
-    }
-    const url = `https://2factor.in/API/V1/${process.env.TWO_FACTOR_API_KEY}/ADDON_SERVICES/SEND/TSMS`;
-    const payload = qs.stringify({
-      From: "AKSTRS",                   
-      To: mobile,                         
-      TemplateName: "AK STORE ORDER CONFIRM", 
-      VAR1: orderId,                    
-      VAR2: String(totalAmount)           
-    });
-    const response = await axios.post(url, payload, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      }
-    });
-    console.log("SMS API RESPONSE:", response.data);
-  } catch (error) {
-    console.error(
-      "SMS SEND ERROR:",
-      error.response?.data || error.message
-    );
-  }
-}
-
 app.use(async (req, res, next) => {
   try {
     if (!req.session.userId) {
@@ -142,13 +115,22 @@ const isLoggedIn = (req, res, next) => {
   next();
 };
 
+const redirectIfLoggedIn = (req, res, next) => {
+  if (req.session.userId) {
+    return res.redirect("/product");
+  }
+  next();
+};
+
 app.get("/", wrapAsync(async (req, res) => {
+  if (req.session.userId) {
+    return res.redirect("/product");
+  }
+  const allproduct = await Listing.find({});
+  res.render("./listings/index.ejs", { allproduct });
+}));
 
-  const allproduct = await Listing.find({})
-  res.render("./listings/index.ejs", { allproduct })
-}))
-
-app.get("/signup", (req, res) => {
+app.get("/signup", redirectIfLoggedIn, (req, res) => {
   res.render("./listings/signup.ejs");
 });
 
@@ -167,7 +149,7 @@ app.post("/signup", wrapAsync(async (req, res) => {
   res.redirect("/login");
 }));
 
-app.get("/login", (req, res) => {
+app.get("/login", redirectIfLoggedIn, (req, res) => {
   res.render("./listings/login.ejs");
 });
 
@@ -219,7 +201,7 @@ app.post("/add-to-cart/:id", isLoggedIn, wrapAsync(async (req, res) => {
   res.json({ success: true });
 }));
 
-app.get("/cart", wrapAsync(async (req, res) => {
+app.get("/cart",isLoggedIn, wrapAsync(async (req, res) => {
   if (!req.session.userId) {
     return res.redirect("/login");
   }
@@ -246,7 +228,7 @@ app.post("/cart/decrease/:id", wrapAsync(async (req, res) => {
   res.sendStatus(200);
 }));
 
-app.get("/cart/buynow", wrapAsync(async (req, res) => {
+app.get("/cart/buynow",isLoggedIn, wrapAsync(async (req, res) => {
   const cartItems = await Cart.find({
     userId: req.session.userId
   }).populate("productId");
@@ -258,7 +240,7 @@ app.get("/cart/buynow", wrapAsync(async (req, res) => {
   res.render("listings/buynow.ejs", { cartItems });
 }));
 
-app.get("/buynow/:id", wrapAsync(async (req, res) => {
+app.get("/buynow/:id",isLoggedIn, wrapAsync(async (req, res) => {
   const product = await Listing.findById(req.params.id);
   if (!product) return res.redirect("/product");
   req.session.checkoutItems = [{
@@ -272,7 +254,7 @@ app.get("/buynow/:id", wrapAsync(async (req, res) => {
   res.render("listings/buynow.ejs", { cartItems });
 }));
 
-app.post("/checkout", wrapAsync(async (req, res) => {
+app.post("/checkout",isLoggedIn, wrapAsync(async (req, res) => {
     const {
       name, mobile, pincode,
       state, city, locality, house, landmark
@@ -304,7 +286,7 @@ app.post("/checkout", wrapAsync(async (req, res) => {
     res.render("listings/payment.ejs", { order: populatedOrder });
 }));
 
-app.post("/send-otp", wrapAsync(async (req, res) => {
+app.post("/send-otp",isLoggedIn, wrapAsync(async (req, res) => {
   const { mobileNumber, orderId } = req.body;
   if (!mobileNumber || !orderId) {
     return res.status(400).json({
@@ -328,42 +310,45 @@ app.post("/send-otp", wrapAsync(async (req, res) => {
   });
 }));
 
-app.post("/verify-otp", wrapAsync(async (req, res) => {
+app.post("/verify-otp",isLoggedIn, wrapAsync(async (req, res) => {
   const { userOtp, orderId } = req.body;
   const otpData = req.session.otpData;
+
   if (!otpData) {
     return res.json({ success: false, message: "OTP expired" });
   }
+
   if (otpData.orderId !== orderId) {
     return res.json({ success: false, message: "Invalid OTP request" });
   }
+
+  // 🔐 VERIFY OTP WITH 2FACTOR
   const verifyRes = await axios.get(
     `https://2factor.in/API/V1/${process.env.TWO_FACTOR_API_KEY}/SMS/VERIFY/${otpData.sessionId}/${userOtp}`
   );
+
   if (verifyRes.data.Status !== "Success") {
     return res.json({ success: false, message: "Invalid OTP" });
   }
+
+  // ✅ CONFIRM ORDER (NO SMS)
   const order = await Order.findByIdAndUpdate(
     orderId,
-    { isVerified: true, status: "Confirmed" },
+    {
+      isVerified: true,
+      status: "Confirmed",
+      confirmedAt: new Date()
+    },
     { new: true }
   ).populate("items.productId");
 
   if (!order) {
     return res.json({ success: false, message: "Order not found" });
   }
-  let totalAmount = 0;
-  for (const item of order.items) {
-    totalAmount += item.productId.current_price * item.quantity;
-  }
-  totalAmount = Math.round(totalAmount);
-  await sendSMS(
-    otpData.mobile,
-    order.orderId,
-    totalAmount
-  );
+
+  // 🧹 CLEAR OTP SESSION
   req.session.otpData = null;
-  console.log(`SMS sent to ${otpData.mobile} for Order ${order.orderId}`);
+
   res.json({ success: true });
 }));
 
