@@ -1,0 +1,47 @@
+<% layout("/layout/seller_dashboard_layout") %>
+
+<h3 class="mb-4">📦 All Products</h3>
+
+<% if (products.length === 0) { %>
+  <div class="alert alert-warning text-center">
+    No products found. Please add some products.
+  </div>
+<% } else { %>
+  <table class="table table-bordered table-hover align-middle text-center">
+    <thead class="table-dark">
+      <tr>
+        <th>#</th>
+        <th>Image</th>
+        <th>Name</th>
+        <th>Company</th>
+        <th>Price</th>
+        <th>Discount</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% products.forEach((p, i) => { %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <td><img src="<%= p.image %>" width="50"></td>
+          <td><%= p.item_name %></td>
+          <td><%= p.company %></td>
+          <td>₹ <%= p.current_price %></td>
+          <td><%= p.discount_percentage %>%</td>
+          <td>
+            <!-- Edit -->
+            <a href="/seller/products/<%= p._id %>/edit" class="btn btn-sm btn-warning">
+              Edit
+            </a>
+            <!-- Delete -->
+            <form action="/seller/products/<%= p._id %>/delete" method="POST" style="display:inline-block;"
+                  onsubmit="return confirm('Are you sure you want to delete this product?');">
+              <button class="btn btn-sm btn-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+<% } %>

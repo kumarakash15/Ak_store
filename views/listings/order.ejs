@@ -1,68 +1,94 @@
 <% layout("/layout/bollerplate") %>
-    <div class="myntra-orders">
-        <aside class="orders-sidebar">
-            <h3>Account</h3>
-            <ul>
-                <li class="active">Orders</li>
-                <li>Wishlist</li>
-                <li>Gift Cards</li>
-                <li>Contact Us</li>
-            </ul>
-        </aside>
-        <section class="orders-content">
-            <h2>My Orders</h2>
-            <% if (orders.length===0) { %>
-                <p class="empty">You have not placed any orders yet.</p>
-                <% } %>
-                    <% orders.forEach(order=> { %>
-                        <div class="order-box">
 
-                            <div class="order-top">
-                                <div>
-                                    <p class="order-id">Order ID: <%= order._id %>
-                                    </p>
-                                    <p class="order-date">
-                                        <%= order.orderDate.toDateString() %>
-                                    </p>
-                                </div>
-                                <span class="status <%= order.status.toLowerCase() %>">
-                                    <%= order.status %>
-                                </span>
+<div class="myntra-orders">
+    <!-- Sidebar -->
+    <aside class="orders-sidebar">
+        <h3>Account</h3>
+        <ul>
+            <li class="active">Orders</li>
+            <li>Wishlist</li>
+            <li>Gift Cards</li>
+            <li>Contact Us</li>
+        </ul>
+    </aside>
+
+    <!-- Orders Content -->
+    <section class="orders-content">
+        <h2>My Orders</h2>
+
+        <% if (orders.length === 0) { %>
+            <p class="empty">You have not placed any orders yet.</p>
+        <% } %>
+
+        <% orders.forEach(order => { %>
+            <div class="order-box">
+
+                <!-- Order Header -->
+                <div class="order-top">
+                    <div>
+                        <p class="order-id">
+                            Order ID: <%= order._id %>
+                        </p>
+                        <p class="order-date">
+                            <%= order.orderDate.toDateString() %>
+                        </p>
+                    </div>
+
+                    <span class="status <%= order.status.toLowerCase() %>">
+                        <%= order.status %>
+                    </span>
+                </div>
+
+                <!-- Order Items -->
+                <% order.items.forEach(item => { %>
+                    <% if (item.productId) { %>
+                        <div class="order-item">
+                            <img src="<%= item.productId.image %>" alt="product">
+
+                            <div class="details">
+                                <h4><%= item.productId.item_name %></h4>
+                                <p class="company"><%= item.productId.company %></p>
+                                <p>Qty: <%= item.quantity %></p>
+                                <p class="price">
+                                    ₹<%= item.productId.current_price %>
+                                </p>
                             </div>
-                            <% order.items.forEach(item=> { %>
-                                <div class="order-item">
-                                    <img src="<%= item.productId.image %>" alt="product">
-                                    <div class="details">
-                                        <h4>
-                                            <%= item.productId.item_name %>
-                                        </h4>
-                                        <p class="company">
-                                            <%= item.productId.company %>
-                                        </p>
-                                        <p>Qty: <%= item.quantity %>
-                                        </p>
-                                        <p class="price">₹<%= item.productId.current_price %>
-                                        </p>
-                                    </div>
-                                </div>
-                                <% }) %>
-                                    <div class="order-footer">
-                                        <span>
-                                            Total: ₹<%= order.items.reduce( (sum, i)=> sum + i.quantity *
-                                                i.productId.current_price,
-                                                0
-                                                ) %>
-                                        </span>
-                                        <div class="actions d-flex gap-2 mt-3">
-                                            <a href="/order/<%= order._id %>" class="btn btn-myntra-outline w-50">
-                                                View Details
-                                            </a>
-                                            <button class="btn btn-myntra w-50">
-                                                Track Order
-                                            </button>
-                                        </div>
-                                    </div>
                         </div>
-                        <% }) %>
-        </section>
-    </div>
+                    <% } else { %>
+                        <!-- Product deleted / unavailable -->
+                        <div class="order-item">
+                            <div class="details">
+                                <h4 class="text-danger">Product unavailable</h4>
+                                <p>This product is no longer available</p>
+                                <p>Qty: <%= item.quantity %></p>
+                            </div>
+                        </div>
+                    <% } %>
+                <% }) %>
+
+                <!-- Order Footer -->
+                <div class="order-footer">
+                    <span>
+                        Total: ₹
+                        <%= order.items.reduce((sum, i) => {
+                            if (!i.productId) return sum;
+                            return sum + i.quantity * i.productId.current_price;
+                        }, 0) %>
+                    </span>
+
+                    <div class="actions d-flex gap-2 mt-3">
+                        <a href="/order/<%= order._id %>" 
+                           class="btn btn-myntra-outline w-50">
+                            View Details
+                        </a>
+
+                        <button class="btn btn-myntra w-50">
+                            Track Order
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        <% }) %>
+    </section>
+</div>

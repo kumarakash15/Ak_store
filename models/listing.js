@@ -33,10 +33,6 @@ const ListingSchema = new Schema({
     type: Number,
     default: 0
   },
-  delivery_date: {
-    type: String,
-    required: true
-  },
   rating: {
     stars: {
       type: Number,

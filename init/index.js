@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const items = require("./data");
-const Listing = require("../models/listing");
+const { Listing } = require("../models/listing");
 const mongo_url = "mongodb://127.0.0.1:27017/akstore";
 
 main().then(() => {

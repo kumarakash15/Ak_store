@@ -49,40 +49,45 @@
                     <hr>
 
                     <!-- Delivery -->
-                    <p class="fs-5"><b>Delivery by:</b>
-                        <%= product.delivery_date %>
-                    </p>
+                    <% const start=new Date(); start.setDate(start.getDate() + 3); const end=new Date();
+                        end.setDate(end.getDate() + 7); const opt={ day: 'numeric' , month: 'short' }; %>
 
-                    <!-- Return -->
-                    <p class="fs-5"><b>Return period:</b>
-                        <%= product.return_period %> days
-                    </p>
-                    <hr>
-                    <!-- Buttons -->
-                    <div class="mt-4">
-                        <% if (session.userId) { %>
-                            <!-- USER LOGGED IN -->
-                            <div class="d-grid gap-2">
-                                <a href="/buynow/<%= product._id %>" class="btn btn-success w-100">
-                                    Buy Now
-                                </a>
-                                <form class="add-to-cart-form" data-id="<%= product._id %>">
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        Add to Cart
-                                    </button>
-                                </form>
-                            </div>
-                            <% } else { %>
-                                <!-- USER NOT LOGGED IN -->
-                                <div class="alert alert-warning text-center">
-                                    <strong>Please login</strong> to buy or add items to your cart.
+                        <p class="fs-5">
+                            <b>Delivery by:</b>
+                            <%= start.toLocaleDateString('en-IN', opt) %> –
+                                <%= end.toLocaleDateString('en-IN', opt) %>
+                        </p>
+
+                        <!-- Return -->
+                        <p class="fs-5"><b>Return period:</b>
+                            <%= product.return_period %> days
+                        </p>
+                        <hr>
+                        <!-- Buttons -->
+                        <div class="mt-4">
+                            <% if (session.userId) { %>
+                                <!-- USER LOGGED IN -->
+                                <div class="d-grid gap-2">
+                                    <a href="/buynow/<%= product._id %>" class="btn btn-success w-100">
+                                        Buy Now
+                                    </a>
+                                    <form class="add-to-cart-form" data-id="<%= product._id %>">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            Add to Cart
+                                        </button>
+                                    </form>
                                 </div>
+                                <% } else { %>
+                                    <!-- USER NOT LOGGED IN -->
+                                    <div class="alert alert-warning text-center">
+                                        <strong>Please login</strong> to buy or add items to your cart.
+                                    </div>
 
-                                <a href="/login" class="btn btn-outline-primary w-100">
-                                    Login / Signup
-                                </a>
-                                <% } %>
-                    </div>
+                                    <a href="/login" class="btn btn-outline-primary w-100">
+                                        Login / Signup
+                                    </a>
+                                    <% } %>
+                        </div>
                 </div>
             </div>
         </div>

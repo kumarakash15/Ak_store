@@ -1,0 +1,78 @@
+<% layout("/layout/seller_dashboard_layout") %>
+
+<h3 class="mb-4">📦 Customer Orders</h3>
+
+<% if (orders.length === 0) { %>
+  <p class="text-muted">No orders found.</p>
+<% } else { %>
+
+<div class="table-responsive">
+  <table class="table table-bordered align-middle text-center">
+    <thead class="table-dark">
+      <tr>
+        <th>Order ID</th>
+        <th>Products</th>
+        <th>Total Amount</th>
+        <th>Payment</th>
+        <th>Status</th>
+        <th>Order Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% orders.forEach(order => { %>
+        <% let total = 0; %>
+
+        <% order.items.forEach(item => {
+            total += item.quantity * item.productId.current_price;
+        }) %>
+
+        <tr>
+          <!-- Order ID -->
+          <td class="fw-bold"><%= order.orderId %></td>
+
+          <!-- Product Images -->
+          <td>
+            <% order.items.forEach(item => { %>
+              <img src="<%= item.productId.image %>"
+                   width="40"
+                   class="me-1 mb-1 rounded"
+                   title="<%= item.productId.item_name %>">
+            <% }) %>
+          </td>
+
+          <!-- Total -->
+          <td class="fw-bold text-success">₹ <%= total %></td>
+
+          <!-- Payment -->
+          <td><%= order.paymentMethod %></td>
+
+          <!-- Status -->
+          <td>
+            <span class="badge 
+              <%= order.status === 'Delivered' ? 'bg-success' :
+                  order.status === 'Cancelled' ? 'bg-danger' :
+                  order.status === 'Confirmed' ? 'bg-primary' :
+                  'bg-warning text-dark' %>">
+              <%= order.status %>
+            </span>
+          </td>
+
+          <!-- Date -->
+          <td><%= order.orderDate.toDateString() %></td>
+
+          <!-- View -->
+          <td>
+            <a href="/seller/orders/<%= order._id %>"
+               class="btn btn-sm btn-outline-primary">
+              View Details
+            </a>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<% } %>

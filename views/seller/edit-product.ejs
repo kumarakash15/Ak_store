@@ -1,0 +1,57 @@
+<% layout("/layout/seller_dashboard_layout") %>
+<div class="container mt-3">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+
+      <div class="card shadow p-4 rounded-4">
+        <h3 class="mb-4 text-center">✏️ Edit Product</h3>
+
+        <form action="/seller/products/<%= product._id %>/edit" method="POST">
+
+          <div class="mb-3">
+            <label class="form-label">Product Image URL</label>
+            <input type="text" name="image" class="form-control" value="<%= product.image %>" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Company Name</label>
+            <input type="text" name="company" class="form-control" value="<%= product.company %>" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Item Name</label>
+            <input type="text" name="item_name" class="form-control" value="<%= product.item_name %>" required>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Original Price (₹)</label>
+              <input type="number" name="original_price" class="form-control" value="<%= product.original_price %>" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Current Price (₹)</label>
+              <input type="number" name="current_price" class="form-control" value="<%= product.current_price %>" required>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Discount Percentage (%)</label>
+              <input type="number" name="discount_percentage" class="form-control" value="<%= product.discount_percentage %>">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Return Period (Days)</label>
+              <input type="number" name="return_period" class="form-control" value="<%= product.return_period %>">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 rounded-3">
+            💾 Update Product
+          </button>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+<nav class="myntra-navbar">
+  <div class="nav-top">
+
+    <div class="nav-left">
+      <a href="/seller" class="nav-logo">
+        AKSTORE <span class="seller-tag">SELLER PANEL</span>
+      </a>
+    </div>
+
+    <div class="nav-right">
+      <% if (session && session.sellerId) { %>
+        <a href="/seller/logout" class="seller-logout-btn">LOGOUT</a>
+      <% } else { %>
+        <a href="/seller/login" class="seller-login-btn">LOGIN</a>
+      <% } %>
+    </div>
+
+  </div>
+</nav>

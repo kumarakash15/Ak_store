@@ -1,0 +1,25 @@
+<% layout("/layout/seller_dashboard_layout") %>
+
+<h1>Welcome, <%= session.sellerId %></h1>
+<p class="dashboard-intro">
+  Manage your store, add products, and track orders here.
+</p>
+
+<div class="dashboard-cards">
+
+  <a href="/seller/add-product" class="dashboard-card">
+    <i class="fa-solid fa-plus"></i>
+    <span>Add Product</span>
+  </a>
+
+  <a href="/seller/products" class="dashboard-card">
+    <i class="fa-solid fa-boxes-stacked"></i>
+    <span>See All Products</span>
+  </a>
+
+  <a href="/seller/orders" class="dashboard-card">
+    <i class="fa-solid fa-clipboard-list"></i>
+    <span>Order History</span>
+  </a>
+
+</div>

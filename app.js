@@ -122,6 +122,112 @@ const redirectIfLoggedIn = (req, res, next) => {
   next();
 };
 
+const isSellerLoggedIn = (req, res, next) => {
+  if (!req.session.sellerId) {
+    return res.redirect("/seller/login");
+  }
+  next();
+};
+
+//seller route
+app.get("/seller",(req,res)=>{
+  res.render("./seller/index.ejs")
+})
+
+app.get("/seller/login", (req, res) => {
+  if (req.session.sellerId) {
+    return res.redirect("/seller/dashboard"); 
+  }
+  res.render("./seller/login");
+});
+
+// POST login
+app.post("/seller/login", (req, res) => {
+  const { userid, password } = req.body;
+  if (userid === "admin" && password === "admin123") {
+    req.session.sellerId = userid;  
+    res.redirect("/seller/dashboard");  
+  } else {
+    res.render("./seller/login", { error: "Invalid User ID or Password" });
+  }
+});
+
+app.get("/seller/dashboard", isSellerLoggedIn, (req, res) => {
+  res.render("./seller/dashboard");
+});
+
+app.get("/seller/add-product",isSellerLoggedIn,(req,res)=>{
+  res.render("./seller/add-product.ejs")
+})
+
+app.post("/seller/add-product", isSellerLoggedIn, wrapAsync(async (req, res) => {
+  const {image,company,item_name,original_price,current_price,discount_percentage,return_period} = req.body;
+  await Listing.create({image,company,item_name,original_price,current_price,discount_percentage,return_period});
+  res.redirect("/seller/products");
+}));
+
+app.get("/seller/products", isSellerLoggedIn, wrapAsync(async (req, res) => {
+  const products = await Listing.find({});
+  res.render("./seller/product.ejs", { products });
+}));
+
+app.get("/seller/products/:id/edit", isSellerLoggedIn, wrapAsync(async (req, res) => {
+  const { id } = req.params;
+  const product = await Listing.findById(id);
+  if (!product) {
+    req.flash("error", "Product not found");
+    return res.redirect("/seller/products");
+  }
+  res.render("./seller/edit-product.ejs", { product });
+}));
+
+app.post("/seller/products/:id/edit", isSellerLoggedIn, wrapAsync(async (req, res) => {
+  const { id } = req.params;
+  const { image, company, item_name, original_price, current_price, discount_percentage, return_period } = req.body;
+  await Listing.findByIdAndUpdate(id, {image,company,item_name,original_price,current_price,discount_percentage,return_period});
+  res.redirect("/seller/products");
+}));
+
+app.post("/seller/products/:id/delete", isSellerLoggedIn, wrapAsync(async (req, res) => {
+  const { id } = req.params;
+  await Listing.findByIdAndDelete(id);
+  res.redirect("/seller/products");
+}));
+
+app.get("/seller/orders", isSellerLoggedIn, wrapAsync(async (req, res) => {
+    const orders = await Order.find({})
+      .populate("items.productId")
+      .sort({ orderDate: -1 });
+    res.render("./seller/orders.ejs", { orders });
+}));
+
+app.get("/seller/orders/:id", isSellerLoggedIn, wrapAsync(async (req, res) => {
+    const order = await Order.findById(req.params.id)
+      .populate("items.productId");
+
+    if (!order) return res.redirect("/seller/orders");
+
+    res.render("./seller/order-details.ejs", { order });
+}));
+
+app.post("/seller/orders/:id/status", isSellerLoggedIn, wrapAsync(async (req, res) => {
+    const { status } = req.body;
+    const update = { status };
+    if (status === "Confirmed") update.confirmedAt = new Date();
+    if (status === "Shipped") update.shippedAt = new Date();
+    if (status === "Delivered") update.deliveredAt = new Date();
+
+    await Order.findByIdAndUpdate(req.params.id, update);
+
+    res.redirect(`/seller/orders/${req.params.id}`);
+}));
+
+app.get("/seller/logout", (req, res) => {
+  req.session.sellerId = null;
+  res.redirect("/seller");
+});
+
+//buyer route
 app.get("/", wrapAsync(async (req, res) => {
   if (req.session.userId) {
     return res.redirect("/product");
@@ -365,7 +471,6 @@ app.get("/order", wrapAsync(async (req, res) => {
   })
     .populate("items.productId")
     .sort({ orderDate: -1 });
-
   res.render("listings/order.ejs", { orders });
 }));
 
@@ -447,9 +552,12 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  let { status = 500, message = "internal server error!" } = err;
-  res.render("./listings/error.ejs", { status, message })
-})
+  let { status = 500, message = "Internal Server Error!" } = err;
+  if (req.originalUrl.startsWith("/seller")) {
+    return res.status(status).render("./seller/error.ejs", {status,message});
+  }
+  res.status(status).render("./listings/error.ejs", {status,message});
+});
 
 app.listen(port, () => {
   console.log(`app listing on port ${port}`);

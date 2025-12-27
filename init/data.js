@@ -7,7 +7,6 @@ const items = [
       current_price: 606,
       discount_percentage: 42,
       return_period: 14,
-      delivery_date: '10 Feb 2025',
       rating: {
           stars: 4.5,
           count: 1400,
@@ -21,7 +20,6 @@ const items = [
       current_price: 1507,
       discount_percentage: 42,
       return_period: 14,
-      delivery_date: '17 Feb 2025',
       rating: {
           stars: 4.3,
           count: 24,
@@ -35,7 +33,6 @@ const items = [
       current_price: 495,
       discount_percentage: 69,
       return_period: 14,
-      delivery_date: '5 Mar 2025',
       rating: {
           stars: 4.1,
           count: 249,
@@ -49,7 +46,6 @@ const items = [
       current_price: 999,
       discount_percentage: 0,
       return_period: 14,
-      delivery_date: '31 Jan 2025',
       rating: {
           stars: 5.0,
           count: 10,
@@ -63,7 +59,6 @@ const items = [
       current_price: 489,
       discount_percentage: 65,
       return_period: 14,
-      delivery_date: '11 Mar 2025',
       rating: {
           stars: 4.2,
           count: 3500,
@@ -77,7 +72,6 @@ const items = [
       current_price: 14995,
       discount_percentage: 0,
       return_period: 14,
-      delivery_date: '29 Mar 2025',
       rating: {
           stars: 0.0,
           count: 0,
@@ -91,7 +85,6 @@ const items = [
       current_price: 639,
       discount_percentage: 60,
       return_period: 14,
-      delivery_date: '28 Feb 2025',
       rating: {
           stars: 4.2,
           count: 388,
@@ -105,7 +98,6 @@ const items = [
       current_price: 142,
       discount_percentage: 50,
       return_period: 14,
-      delivery_date: '19 Mar 2025',
       rating: {
           stars: 4.2,
           count: 5200,
@@ -119,7 +111,6 @@ const items = [
       current_price: 136,
       discount_percentage: 20,
       return_period: 14,
-      delivery_date: '14 Feb 2025',
       rating: {
           stars: 4.2,
           count: 5200,
@@ -133,7 +124,6 @@ const items = [
     current_price: 360,
     discount_percentage: 20,
     return_period: 14,
-    delivery_date: '20 Feb 2025',
     rating: {
         stars: 4.2,
         count: 5200,
@@ -147,7 +137,6 @@ const items = [
       current_price: 360,
       discount_percentage: 20,
       return_period: 14,
-      delivery_date: '28 Mar 2025',
       rating: {
           stars: 4.2,
           count: 5200,
@@ -161,7 +150,6 @@ const items = [
       current_price: 360,
       discount_percentage: 20,
       return_period: 14,
-      delivery_date: '24 Jan 2025',
       rating: {
           stars: 4.5,
           count: 5300,

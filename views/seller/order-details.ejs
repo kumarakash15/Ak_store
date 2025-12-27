@@ -1,0 +1,153 @@
+<% layout("/layout/seller_dashboard_layout") %>
+
+<a href="/seller/orders" class="btn btn-secondary mb-3">⬅ Back to Orders</a>
+
+<div class="card shadow rounded-4">
+
+  <!-- HEADER -->
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <div>
+      <strong>Order ID:</strong> <%= order.orderId %><br>
+      <small class="text-muted">
+        Placed on: <%= order.orderDate.toDateString() %>
+      </small>
+    </div>
+
+    <span class="badge fs-6
+      <%= order.status === 'Delivered' ? 'bg-success' :
+          order.status === 'Cancelled' ? 'bg-danger' :
+          order.status === 'Confirmed' ? 'bg-primary' :
+          order.status === 'Shipped' ? 'bg-info' :
+          'bg-warning text-dark' %>">
+      <%= order.status %>
+    </span>
+  </div>
+
+  <!-- BODY -->
+  <div class="card-body">
+
+    <!-- 🔄 STATUS ACTIONS -->
+    <div class="mb-4">
+      <% if (order.status !== "Cancelled" && order.status !== "Delivered") { %>
+
+        <form action="/seller/orders/<%= order._id %>/status"
+              method="POST"
+              class="d-flex gap-2">
+
+          <% if (order.status === "Pending") { %>
+            <input type="hidden" name="status" value="Confirmed">
+            <button class="btn btn-primary">
+              ✅ Confirm Order
+            </button>
+          <% } %>
+
+          <% if (order.status === "Confirmed") { %>
+            <input type="hidden" name="status" value="Shipped">
+            <button class="btn btn-warning">
+              🚚 Mark as Shipped
+            </button>
+          <% } %>
+
+          <% if (order.status === "Shipped") { %>
+            <input type="hidden" name="status" value="Delivered">
+            <button class="btn btn-success">
+              📦 Mark as Delivered
+            </button>
+          <% } %>
+
+        </form>
+
+      <% } %>
+
+      <% if (order.status === "Cancelled") { %>
+        <p class="text-danger fw-bold mt-2">
+          ❌ This order has been cancelled. No actions allowed.
+        </p>
+      <% } %>
+
+      <% if (order.status === "Delivered") { %>
+        <p class="text-success fw-bold mt-2">
+          🎉 Order successfully delivered.
+        </p>
+      <% } %>
+    </div>
+
+    <hr>
+
+    <!-- 👤 CUSTOMER -->
+    <h6>👤 Customer Details</h6>
+    <p>
+      <strong>Name:</strong> <%= order.name %><br>
+      <strong>Mobile:</strong> <%= order.mobile %><br>
+      <strong>Payment:</strong> <%= order.paymentMethod %>
+    </p>
+
+    <!-- 🏠 ADDRESS -->
+    <h6>🏠 Delivery Address</h6>
+    <p>
+      <%= order.house %>, <%= order.locality %>, <%= order.city %><br>
+      <%= order.state %> - <%= order.pincode %><br>
+      <strong>Landmark:</strong> <%= order.landmark %>
+    </p>
+
+    <!-- 🛒 ITEMS -->
+    <h6>🛒 Ordered Items</h6>
+    <table class="table table-sm align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Image</th>
+          <th>Product</th>
+          <th>Company</th>
+          <th>Qty</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% let total = 0; %>
+
+        <% order.items.forEach(item => { %>
+          <% total += item.quantity * item.productId.current_price; %>
+          <tr>
+            <td>
+              <img src="<%= item.productId.image %>"
+                   width="50"
+                   style="border-radius:6px;">
+            </td>
+            <td><%= item.productId.item_name %></td>
+            <td><%= item.productId.company %></td>
+            <td><%= item.quantity %></td>
+            <td>₹ <%= item.productId.current_price %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <div class="text-end fw-bold fs-5">
+      Total Amount: ₹ <%= total %>
+    </div>
+
+    <!-- ⏱ TIMELINE -->
+    <hr>
+    <h6>⏱ Order Timeline</h6>
+    <ul class="small text-muted">
+      <li>Order Placed: <%= order.orderDate?.toLocaleString() %></li>
+
+      <% if (order.confirmedAt) { %>
+        <li>Confirmed: <%= order.confirmedAt.toLocaleString() %></li>
+      <% } %>
+
+      <% if (order.shippedAt) { %>
+        <li>Shipped: <%= order.shippedAt.toLocaleString() %></li>
+      <% } %>
+
+      <% if (order.deliveredAt) { %>
+        <li>Delivered: <%= order.deliveredAt.toLocaleString() %></li>
+      <% } %>
+
+      <% if (order.cancelledAt) { %>
+        <li>Cancelled: <%= order.cancelledAt.toLocaleString() %></li>
+      <% } %>
+    </ul>
+
+  </div>
+</div>
