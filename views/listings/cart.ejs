@@ -1,106 +1,96 @@
 <% layout("/layout/bollerplate") %>
 
-    <body class="p-4">
+<body class="p-4">
 
-        <h2 class="mb-4">My Shopping Bag (<%= cartItems.length %>)</h2>
+    <h2 class="mb-4">My Shopping Bag (<%= cartItems.length %>)</h2>
 
-        <div class="cart-container">
+    <div class="container">
+        <div class="row">
 
             <!-- LEFT SIDE (Products) -->
-            <div class="cart-left">
+            <div class="col-12 col-md-8 mb-4 mb-md-0">
 
-                <% if(cartItems.length===0){ %>
+                <% if(cartItems.length === 0){ %>
                     <h3>Your cart is empty 😔</h3>
-                    <% } %>
+                <% } %>
 
-                        <% let totalMRP=0; let totalDiscount=0; let finalPrice=0; %>
+                <% let totalMRP = 0; let totalDiscount = 0; let finalPrice = 0; %>
+                <% cartItems.forEach(item => { 
+                    totalMRP += item.productId.original_price * item.quantity;
+                    finalPrice += item.productId.current_price * item.quantity;
+                    totalDiscount += (item.productId.original_price - item.productId.current_price) * item.quantity;
+                %>
 
-                            <% cartItems.forEach(item=> {
-                                totalMRP += item.productId.original_price * item.quantity;
-                                finalPrice += item.productId.current_price * item.quantity;
-                                totalDiscount += (item.productId.original_price - item.productId.current_price) *
-                                item.quantity;
-                                %>
+                    <div class="card mb-3 p-3 shadow-sm d-flex flex-row align-items-center">
+                        <a href="/product/<%= item.productId._id %>" class="me-3 d-block" style="width: 120px;">
+                            <img src="<%= item.productId.image %>" class="img-fluid rounded" alt="product">
+                        </a>
 
-                                <div class="cart-item">
-                                    <a href="/product/<%= item.productId._id %>">
-                                        <img src="<%= item.productId.image %>" alt="product">
-                                    </a>
+                        <div class="flex-grow-1">
+                            <h5><%= item.productId.company %></h5>
+                            <p><%= item.productId.item_name %></p>
 
-                                    <div style="flex:1;">
-                                        <h5>
-                                            <%= item.productId.company %>
-                                        </h5>
-                                        <p>
-                                            <%= item.productId.item_name %>
-                                        </p>
+                            <h4>
+                                ₹<%= item.productId.current_price %>
+                                <span class="text-muted fs-6"><del>₹<%= item.productId.original_price %></del></span>
+                                <span class="text-success fw-bold">(<%= item.productId.discount_percentage %>% OFF)</span>
+                            </h4>
 
-                                        <h4>
-                                            ₹<%= item.productId.current_price %>
-                                                <span class="text-muted fs-6"><del>₹<%= item.productId.original_price %>
-                                                    </del></span>
-                                                <span class="text-success fw-bold">(<%=
-                                                        item.productId.discount_percentage %>% OFF)</span>
-                                        </h4>
+                            <!-- Quantity -->
+                            <div class="d-flex align-items-center mt-2">
+                                <button class="btn btn-outline-secondary btn-sm decrease me-2" data-id="<%= item._id %>">-</button>
+                                <span class="fw-bold px-2"><%= item.quantity %></span>
+                                <button class="btn btn-outline-secondary btn-sm increase ms-2" data-id="<%= item._id %>">+</button>
+                            </div>
+                        </div>
+                    </div>
 
-                                        <!-- Quantity -->
-                                        <div class="qty-box mt-2">
-                                            <button class="qty-btn decrease" data-id="<%= item._id %>">-</button>
-                                            <span class="fw-bold">
-                                                <%= item.quantity %>
-                                            </span>
-                                            <button class="qty-btn increase" data-id="<%= item._id %>">+</button>
-                                        </div>
-                                    </div>
-                                </div>
+                <% }) %>
 
-                                <% }) %>
             </div>
 
             <!-- RIGHT SIDE (Price Summary) -->
-            <div class="cart-right">
-                <h5 class="mb-3">Price Details</h5>
+            <div class="col-12 col-md-4">
+                <div class="card shadow-sm p-3">
+                    <h5 class="mb-3">Price Details</h5>
 
-                <div class="price-row">
-                    <span>Total MRP</span>
-                    <span>₹<%= totalMRP %></span>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total MRP</span>
+                        <span>₹<%= totalMRP %></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Discount</span>
+                        <span class="text-success">- ₹<%= totalDiscount %></span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
+                        <span>Total Amount</span>
+                        <span>₹<%= finalPrice %></span>
+                    </div>
+
+                    <a href="/cart/buynow" class="btn btn-success w-100 mb-2">PLACE ORDER</a>
+                    <a href="/product" class="btn btn-outline-secondary w-100">Continue Shopping</a>
                 </div>
-
-                <div class="price-row">
-                    <span>Discount</span>
-                    <span class="text-success">- ₹<%= totalDiscount %></span>
-                </div>
-
-                <hr>
-
-                <div class="price-row fw-bold fs-5">
-                    <span>Total Amount</span>
-                    <span>₹<%= finalPrice %></span>
-                </div>
-                <a href="/cart/buynow" class="btn btn-success w-100">
-                    PLACE ORDER
-                </a>
-                <a href="/product">
-                    <button class="continue-btn mt-2">Continue Shopping</button>
-                </a>
             </div>
 
         </div>
+    </div>
 
+    <!-- AJAX Increase/Decrease -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script>
+        $(".increase").click(function () {
+            const id = $(this).data("id");
+            $.post(`/cart/increase/${id}`, () => location.reload());
+        });
 
-        <!-- AJAX Increase/Decrease -->
-        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        $(".decrease").click(function () {
+            const id = $(this).data("id");
+            $.post(`/cart/decrease/${id}`, () => location.reload());
+        });
+    </script>
 
-        <script>
-            $(".increase").click(function () {
-                const id = $(this).data("id");
-                $.post(`/cart/increase/${id}`, () => location.reload());
-            });
-
-            $(".decrease").click(function () {
-                const id = $(this).data("id");
-                $.post(`/cart/decrease/${id}`, () => location.reload());
-            });
-        </script>
-
-    </body>
+</body>

@@ -1,94 +1,93 @@
 <% layout("/layout/bollerplate") %>
 
-<div class="myntra-orders">
-    <!-- Sidebar -->
-    <aside class="orders-sidebar">
-        <h3>Account</h3>
-        <ul>
-            <li class="active">Orders</li>
-            <li>Wishlist</li>
-            <li>Gift Cards</li>
-            <li>Contact Us</li>
-        </ul>
-    </aside>
+<div class="container my-4">
+    <div class="row">
 
-    <!-- Orders Content -->
-    <section class="orders-content">
-        <h2>My Orders</h2>
+        <!-- Sidebar -->
+        <aside class="col-12 col-md-3 mb-4 orders-sidebar">
+            <h3>Account</h3>
+            <ul class="list-unstyled">
+                <li class="active">Orders</li>
+                <li>Wishlist</li>
+                <li>Gift Cards</li>
+                <li>Contact Us</li>
+            </ul>
+        </aside>
 
-        <% if (orders.length === 0) { %>
-            <p class="empty">You have not placed any orders yet.</p>
-        <% } %>
+        <!-- Orders Content -->
+        <section class="col-12 col-md-9 orders-content">
+            <h2>My Orders</h2>
 
-        <% orders.forEach(order => { %>
-            <div class="order-box">
+            <% if (orders.length === 0) { %>
+                <p class="empty">You have not placed any orders yet.</p>
+            <% } %>
 
-                <!-- Order Header -->
-                <div class="order-top">
-                    <div>
-                        <p class="order-id">
-                            Order ID: <%= order._id %>
-                        </p>
-                        <p class="order-date">
-                            <%= order.orderDate.toDateString() %>
-                        </p>
+            <% orders.forEach(order => { %>
+                <div class="card mb-4 order-box p-3 shadow-sm">
+
+                    <!-- Order Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-3 order-top">
+                        <div>
+                            <p class="order-id mb-1">Order ID: <%= order._id %></p>
+                            <p class="order-date mb-0"><%= order.orderDate.toDateString() %></p>
+                        </div>
+
+                        <span class="status <%= order.status.toLowerCase() %> badge 
+                            <%= order.status === 'Pending' ? 'bg-warning' :
+                                order.status === 'Confirmed' ? 'bg-info' :
+                                order.status === 'Shipped' ? 'bg-primary' :
+                                order.status === 'Delivered' ? 'bg-success' :
+                                'bg-danger' %>">
+                            <%= order.status %>
+                        </span>
                     </div>
 
-                    <span class="status <%= order.status.toLowerCase() %>">
-                        <%= order.status %>
-                    </span>
-                </div>
+                    <!-- Order Items -->
+                    <% order.items.forEach(item => { %>
+                        <% if (item.productId) { %>
+                            <div class="d-flex flex-column flex-md-row align-items-center mb-3 order-item">
+                                <img src="<%= item.productId.image %>" class="img-fluid mb-2 mb-md-0 me-md-3" alt="product" style="max-width:120px;">
 
-                <!-- Order Items -->
-                <% order.items.forEach(item => { %>
-                    <% if (item.productId) { %>
-                        <div class="order-item">
-                            <img src="<%= item.productId.image %>" alt="product">
-
-                            <div class="details">
-                                <h4><%= item.productId.item_name %></h4>
-                                <p class="company"><%= item.productId.company %></p>
-                                <p>Qty: <%= item.quantity %></p>
-                                <p class="price">
-                                    ₹<%= item.productId.current_price %>
-                                </p>
+                                <div class="details flex-grow-1">
+                                    <h5><%= item.productId.item_name %></h5>
+                                    <p class="company mb-1"><%= item.productId.company %></p>
+                                    <p class="mb-1">Qty: <%= item.quantity %></p>
+                                    <p class="price mb-0">₹<%= item.productId.current_price %></p>
+                                </div>
                             </div>
-                        </div>
-                    <% } else { %>
-                        <!-- Product deleted / unavailable -->
-                        <div class="order-item">
-                            <div class="details">
-                                <h4 class="text-danger">Product unavailable</h4>
-                                <p>This product is no longer available</p>
-                                <p>Qty: <%= item.quantity %></p>
+                        <% } else { %>
+                            <div class="order-item mb-3">
+                                <div class="details">
+                                    <h5 class="text-danger">Product unavailable</h5>
+                                    <p>This product is no longer available</p>
+                                    <p>Qty: <%= item.quantity %></p>
+                                </div>
                             </div>
+                        <% } %>
+                    <% }) %>
+
+                    <!-- Order Footer -->
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center order-footer mt-3">
+                        <span class="mb-2 mb-md-0 fw-bold">
+                            Total: ₹
+                            <%= order.items.reduce((sum, i) => {
+                                if (!i.productId) return sum;
+                                return sum + i.quantity * i.productId.current_price;
+                            }, 0) %>
+                        </span>
+
+                        <div class="d-flex gap-2 w-100 w-md-auto">
+                            <a href="/order/<%= order._id %>" class="btn btn-myntra-outline w-100 w-md-auto">
+                                View Details
+                            </a>
+                            <button class="btn btn-myntra w-100 w-md-auto">
+                                Track Order
+                            </button>
                         </div>
-                    <% } %>
-                <% }) %>
-
-                <!-- Order Footer -->
-                <div class="order-footer">
-                    <span>
-                        Total: ₹
-                        <%= order.items.reduce((sum, i) => {
-                            if (!i.productId) return sum;
-                            return sum + i.quantity * i.productId.current_price;
-                        }, 0) %>
-                    </span>
-
-                    <div class="actions d-flex gap-2 mt-3">
-                        <a href="/order/<%= order._id %>" 
-                           class="btn btn-myntra-outline w-50">
-                            View Details
-                        </a>
-
-                        <button class="btn btn-myntra w-50">
-                            Track Order
-                        </button>
                     </div>
-                </div>
 
-            </div>
-        <% }) %>
-    </section>
+                </div>
+            <% }) %>
+        </section>
+    </div>
 </div>

@@ -1,13 +1,15 @@
 <nav class="myntra-navbar">
-  <div class="nav-top">
+  <div class="nav-top container-fluid d-flex align-items-center justify-content-between">
 
-    <div class="nav-left">
+    <!-- LEFT -->
+    <div class="nav-left d-flex align-items-center">
       <a href="/seller" class="nav-logo">
         AKSTORE <span class="seller-tag">SELLER PANEL</span>
       </a>
     </div>
 
-    <div class="nav-right">
+    <!-- RIGHT -->
+    <div class="nav-right d-flex align-items-center">
       <% if (session && session.sellerId) { %>
         <a href="/seller/logout" class="seller-logout-btn">LOGOUT</a>
       <% } else { %>

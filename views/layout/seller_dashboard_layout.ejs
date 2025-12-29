@@ -14,30 +14,47 @@
 
     <%- include("../includes/admin_navbar.ejs") %>
 
-        <div class="seller-dashboard-wrapper">
+    <div class="container-fluid seller-dashboard-wrapper">
+        <div class="row flex-nowrap">
 
-            <!-- 🔹 Sidebar (FIXED) -->
-            <aside class="dashboard-sidebar">
-                <div class="sidebar-header">
+            <!-- 🔹 Sidebar -->
+            <aside class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-light dashboard-sidebar collapse d-md-block" id="sidebarMenu">
+                <div class="sidebar-header text-center py-3">
                     <h2>AKSTORE</h2>
                     <span>Seller Panel</span>
                 </div>
 
-                <ul class="sidebar-menu">
-                    <li><a href="/seller/dashboard">Dashboard</a></li>
-                    <li><a href="/seller/add-product">Add Product</a></li>
-                    <li><a href="/seller/products">All Products</a></li>
-                    <li><a href="/seller/orders">Orders History</a></li>
+                <ul class="sidebar-menu nav flex-column">
+                    <li class="nav-item"><a class="nav-link" href="/seller/dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/seller/add-product">Add Product</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/seller/products">All Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/seller/orders">Orders History</a></li>
                 </ul>
             </aside>
 
             <!-- 🔹 RIGHT SIDE CONTENT -->
-            <main class="dashboard-main">
+            <main class="col py-3 dashboard-main">
                 <%- body %>
             </main>
         </div>
-        <%- include("../includes/footer.ejs") %>
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    </div>
+
+    <%- include("../includes/footer.ejs") %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Optional: Toggle sidebar on small screens
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.getElementById('sidebarMenu');
+            const toggler = document.querySelector('.navbar-toggler');
+            if (toggler) {
+                toggler.addEventListener('click', function () {
+                    sidebar.classList.toggle('show');
+                });
+            }
+        });
+    </script>
+
 </body>
 
 </html>

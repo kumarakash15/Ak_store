@@ -1,15 +1,41 @@
 <% layout("/layout/admin_boilerplate") %>
+<div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-12 col-sm-10 col-md-6 col-lg-4">
 
-    <div class="auth-container">
-        <h2>Login</h2>
-        <% if (typeof error !=="undefined" ) { %>
-            <p style="color:red; text-align:center;">
-                <%= error %>
-            </p>
-            <% } %>
+            <div class="auth-container p-4 shadow rounded-4 bg-white">
+                <h2 class="text-center mb-4">Login</h2>
+
+                <% if (typeof error !== "undefined") { %>
+                    <p class="text-danger text-center">
+                        <%= error %>
+                    </p>
+                <% } %>
                 <form action="/seller/login" method="POST">
-                    <input type="text" name="userid" placeholder="Enter user ID" required>
-                    <input type="password" name="password" placeholder="Password" required>
-                    <button type="submit">LOGIN</button>
+                    <div class="mb-3">
+                        <input
+                            type="text"
+                            name="userid"
+                            class="form-control"
+                            placeholder="Enter user ID"
+                            required>
+                    </div>
+
+                    <div class="mb-3">
+                        <input
+                            type="password"
+                            name="password"
+                            class="form-control"
+                            placeholder="Password"
+                            required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        LOGIN
+                    </button>
                 </form>
+            </div>
+
+        </div>
     </div>
+</div>

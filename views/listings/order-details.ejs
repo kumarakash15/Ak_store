@@ -8,12 +8,12 @@
 
 <div class="container mt-5 mb-5">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
+    <div class="col-12 col-md-10 col-lg-8">
 
       <!-- ✅ Order Header -->
       <div class="card shadow-sm mb-4 p-4 border-0 rounded-4 bg-light">
-        <div class="d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-center">
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between">
+          <div class="d-flex align-items-center mb-3 mb-md-0">
             <div class="me-3" style="font-size:40px;">
               <%= order.status === 'Cancelled' ? '❌' :
                   order.status === 'Delivered' ? '🎉' : '📦' %>
@@ -33,11 +33,11 @@
           </div>
 
           <!-- 🔘 Action Buttons -->
-          <div class="text-end">
+          <div class="text-start text-md-end w-100 w-md-auto">
             <% if (order.status === 'Confirmed' || order.status === 'Shipped') { %>
               <form action="/order/<%= order._id %>/cancel" method="POST"
                     onsubmit="return confirm('Are you sure you want to cancel this order?');">
-                <button class="btn btn-outline-danger btn-sm mb-2 w-100">
+                <button class="btn btn-outline-danger btn-sm mb-2 w-100 w-md-auto">
                   ❌ Cancel Order
                 </button>
               </form>
@@ -45,7 +45,7 @@
 
             <% if (['Confirmed','Shipped','Delivered'].includes(order.status)) { %>
               <a href="/order/<%= order._id %>/invoice"
-                 class="btn btn-outline-primary btn-sm w-100">
+                 class="btn btn-outline-primary btn-sm w-100 w-md-auto">
                 📄 Download Invoice
               </a>
             <% } %>
@@ -58,12 +58,8 @@
         <h4 class="mb-3">Order Details</h4>
 
         <p><strong>Order ID:</strong> <%= order._id %></p>
+        <p><strong>Order Date:</strong> <%= order.orderDate.toLocaleString() %></p>
 
-        <p><strong>Order Date:</strong>
-          <%= order.orderDate.toLocaleString() %>
-        </p>
-
-        <!-- ✅ Expected Delivery (HIDDEN if Cancelled) -->
         <% if (order.status !== 'Cancelled') { %>
           <p>
             <strong>Expected Delivery:</strong>
@@ -103,9 +99,9 @@
                const itemTotal = product.current_price * item.quantity;
                totalAmount += itemTotal;
           %>
-            <div class="d-flex mb-3 align-items-center p-3 border rounded-3 bg-white">
-              <img src="<%= product.image %>" class="product-img" alt="product">
-              <div class="ms-3 flex-grow-1">
+            <div class="d-flex flex-column flex-md-row mb-3 align-items-start align-items-md-center p-3 border rounded-3 bg-white">
+              <img src="<%= product.image %>" class="product-img mb-2 mb-md-0" alt="product">
+              <div class="ms-md-3 flex-grow-1">
                 <h5 class="mb-1"><%= product.item_name %></h5>
                 <p class="text-muted mb-1"><%= product.company %></p>
                 <p class="mb-0">
@@ -136,17 +132,14 @@
       <div class="card shadow-sm mb-4 p-4 border-0 rounded-4">
         <h4 class="mb-3">Order Tracking</h4>
 
-        <div class="progress-step-container d-flex justify-content-between mb-3">
-          <div class="step active">Order Placed</div>
-
-          <div class="step <%= ['Confirmed','Shipped','Delivered','Cancelled'].includes(order.status) ? 'active' : '' %>">
+        <div class="progress-step-container d-flex flex-column flex-md-row justify-content-between mb-3 text-center text-md-start">
+          <div class="step active mb-2 mb-md-0">Order Placed</div>
+          <div class="step <%= ['Confirmed','Shipped','Delivered','Cancelled'].includes(order.status) ? 'active' : '' %> mb-2 mb-md-0">
             Confirmed
           </div>
-
-          <div class="step <%= ['Shipped','Delivered'].includes(order.status) ? 'active' : '' %>">
+          <div class="step <%= ['Shipped','Delivered'].includes(order.status) ? 'active' : '' %> mb-2 mb-md-0">
             Shipped
           </div>
-
           <% if (order.status === 'Cancelled') { %>
             <div class="step active text-danger">Cancelled</div>
           <% } else { %>

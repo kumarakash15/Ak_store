@@ -7,7 +7,7 @@
   <div class="row">
 
     <!-- 🛒 PRODUCTS -->
-    <div class="col-md-7">
+    <div class="col-12 col-md-7 mb-4 mb-md-0">
       <% let totalAmount = 0; %>
 
       <% cartItems.forEach(item => { %>
@@ -18,12 +18,12 @@
         %>
 
         <div class="card p-3 shadow-sm mb-3">
-          <div class="row align-items-center">
-            <div class="col-md-4">
+          <div class="row align-items-center g-3">
+            <div class="col-12 col-sm-4">
               <img src="<%= product.image %>" class="img-fluid rounded">
             </div>
 
-            <div class="col-md-8">
+            <div class="col-12 col-sm-8">
               <h6 class="fw-bold mb-1"><%= product.company %></h6>
               <p class="text-muted mb-1"><%= product.item_name %></p>
 
@@ -46,8 +46,8 @@
     </div>
 
     <!-- 💰 PRICE DETAILS -->
-    <div class="col-md-5">
-      <div class="card shadow-sm p-3">
+    <div class="col-12 col-md-5">
+      <div class="card shadow-sm p-3 mb-4 mb-md-0">
         <h5 class="fw-bold mb-3">PRICE DETAILS</h5>
 
         <div class="d-flex justify-content-between mb-2">
@@ -80,49 +80,43 @@
     <!-- 🔥 IMPORTANT PART -->
     <form id="cartBuyForm" action="/checkout" method="POST">
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
           <label class="fw-bold">Full Name</label>
           <input type="text" name="name" class="form-control" required>
         </div>
 
-        <div class="col-md-6 mb-3">
+        <div class="col-12 col-md-6">
           <label class="fw-bold">Mobile Number</label>
           <input type="tel" name="mobile" class="form-control" maxlength="10" required>
         </div>
-      </div>
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
+        <div class="col-12 col-md-6">
           <label class="fw-bold">State</label>
           <input type="text" name="state" class="form-control" required>
         </div>
 
-        <div class="col-md-6 mb-3">
+        <div class="col-12 col-md-6">
           <label class="fw-bold">City</label>
           <input type="text" name="city" class="form-control" required>
         </div>
-      </div>
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
+        <div class="col-12 col-md-6">
           <label class="fw-bold">Pincode</label>
           <input type="text" name="pincode" class="form-control" maxlength="6" required>
         </div>
 
-        <div class="col-md-6 mb-3">
+        <div class="col-12 col-md-6">
           <label class="fw-bold">Locality</label>
           <input type="text" name="locality" class="form-control" required>
         </div>
-      </div>
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
+        <div class="col-12 col-md-6">
           <label class="fw-bold">House / Street</label>
           <input type="text" name="house" class="form-control" required>
         </div>
 
-        <div class="col-md-6 mb-3">
+        <div class="col-12 col-md-6">
           <label class="fw-bold">Landmark (Optional)</label>
           <input type="text" name="landmark" class="form-control">
         </div>
@@ -138,4 +132,5 @@
     PLACE ORDER
   </button>
 </div>
+
 </body>

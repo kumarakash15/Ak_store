@@ -7,15 +7,19 @@
     No products found. Please add some products.
   </div>
 <% } else { %>
-  <table class="table table-bordered table-hover align-middle text-center">
+
+<div class="table-responsive-lg">
+  <table class="table table-bordered table-hover align-middle text-center mb-0">
     <thead class="table-dark">
       <tr>
         <th>#</th>
         <th>Image</th>
         <th>Name</th>
-        <th>Company</th>
+
+        <!-- Hide on mobile -->
+        <th class="d-none d-md-table-cell">Company</th>
         <th>Price</th>
-        <th>Discount</th>
+        <th class="d-none d-lg-table-cell">Discount</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -23,25 +27,60 @@
     <tbody>
       <% products.forEach((p, i) => { %>
         <tr>
-          <td><%= i + 1 %></td>
-          <td><img src="<%= p.image %>" width="50"></td>
-          <td><%= p.item_name %></td>
-          <td><%= p.company %></td>
-          <td>₹ <%= p.current_price %></td>
-          <td><%= p.discount_percentage %>%</td>
+          <!-- Index -->
+          <td class="fw-bold small"><%= i + 1 %></td>
+
+          <!-- Image -->
           <td>
-            <!-- Edit -->
-            <a href="/seller/products/<%= p._id %>/edit" class="btn btn-sm btn-warning">
-              Edit
-            </a>
-            <!-- Delete -->
-            <form action="/seller/products/<%= p._id %>/delete" method="POST" style="display:inline-block;"
-                  onsubmit="return confirm('Are you sure you want to delete this product?');">
-              <button class="btn btn-sm btn-danger">Delete</button>
-            </form>
+            <img src="<%= p.image %>"
+                 width="50"
+                 height="50"
+                 class="rounded">
+          </td>
+
+          <!-- Name -->
+          <td class="fw-semibold">
+            <%= p.item_name %>
+          </td>
+
+          <!-- Company (tablet & up) -->
+          <td class="d-none d-md-table-cell">
+            <%= p.company %>
+          </td>
+
+          <!-- Price -->
+          <td class="text-success fw-bold">
+            ₹ <%= p.current_price %>
+          </td>
+
+          <!-- Discount (desktop only) -->
+          <td class="d-none d-lg-table-cell">
+            <span class="badge bg-info">
+              <%= p.discount_percentage %>%
+            </span>
+          </td>
+
+          <!-- Actions -->
+          <td>
+            <div class="d-flex flex-column flex-sm-row gap-1 justify-content-center">
+              <a href="/seller/products/<%= p._id %>/edit"
+                 class="btn btn-sm btn-warning w-100">
+                Edit
+              </a>
+
+              <form action="/seller/products/<%= p._id %>/delete"
+                    method="POST"
+                    class="w-100"
+                    onsubmit="return confirm('Are you sure you want to delete this product?');">
+                <button class="btn btn-sm btn-danger w-100">
+                  Delete
+                </button>
+              </form>
+            </div>
           </td>
         </tr>
       <% }) %>
     </tbody>
   </table>
+</div>
 <% } %>

@@ -1,9 +1,10 @@
 <% layout("/layout/seller_dashboard_layout") %>
-<div class="container mt-3">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
 
-      <div class="card shadow p-4 rounded-4">
+<div class="container mt-3 px-2 px-sm-3">
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm-11 col-md-8 col-lg-6">
+
+      <div class="card shadow p-3 p-sm-4 rounded-4">
         <h3 class="mb-4 text-center">✏️ Edit Product</h3>
 
         <form action="/seller/products/<%= product._id %>/edit" method="POST">
@@ -24,22 +25,22 @@
           </div>
 
           <div class="row">
-            <div class="col-md-6 mb-3">
+            <div class="col-12 col-md-6 mb-3">
               <label class="form-label">Original Price (₹)</label>
               <input type="number" name="original_price" class="form-control" value="<%= product.original_price %>" required>
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-12 col-md-6 mb-3">
               <label class="form-label">Current Price (₹)</label>
               <input type="number" name="current_price" class="form-control" value="<%= product.current_price %>" required>
             </div>
           </div>
 
           <div class="row">
-            <div class="col-md-6 mb-3">
+            <div class="col-12 col-md-6 mb-3">
               <label class="form-label">Discount Percentage (%)</label>
               <input type="number" name="discount_percentage" class="form-control" value="<%= product.discount_percentage %>">
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-12 col-md-6 mb-3">
               <label class="form-label">Return Period (Days)</label>
               <input type="number" name="return_period" class="form-control" value="<%= product.return_period %>">
             </div>

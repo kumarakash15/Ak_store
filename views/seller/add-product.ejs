@@ -1,50 +1,99 @@
 <% layout("/layout/seller_dashboard_layout") %>
 
-<div class="container mt-3">
-  <div class="card shadow p-4 rounded-4">
-    <h3 class="mb-4 text-center">➕ Add New Product</h3>
+<div class="container py-3">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8 col-xl-6">
 
-    <form action="/seller/add-product" method="POST">
-      <div class="mb-3">
-        <label class="form-label">Product Image URL</label>
-        <input type="text" name="image" class="form-control" required>
+      <div class="card shadow-sm rounded-4 p-3 p-md-4">
+        <h3 class="mb-4 text-center">➕ Add New Product</h3>
+
+        <form action="/seller/add-product" method="POST">
+
+          <!-- Image URL -->
+          <div class="mb-3">
+            <label class="form-label">Product Image URL</label>
+            <input type="url"
+                   name="image"
+                   class="form-control"
+                   placeholder="https://example.com/image.jpg"
+                   required>
+          </div>
+
+          <!-- Company -->
+          <div class="mb-3">
+            <label class="form-label">Company Name</label>
+            <input type="text"
+                   name="company"
+                   class="form-control"
+                   placeholder="Brand name"
+                   required>
+          </div>
+
+          <!-- Item Name -->
+          <div class="mb-3">
+            <label class="form-label">Item Name</label>
+            <input type="text"
+                   name="item_name"
+                   class="form-control"
+                   placeholder="Product title"
+                   required>
+          </div>
+
+          <!-- Prices -->
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Original Price</label>
+              <input type="number"
+                     name="original_price"
+                     class="form-control"
+                     placeholder="₹ MRP"
+                     min="0"
+                     required>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label">Current Price</label>
+              <input type="number"
+                     name="current_price"
+                     class="form-control"
+                     placeholder="₹ Selling price"
+                     min="0"
+                     required>
+            </div>
+          </div>
+
+          <!-- Discount & Return -->
+          <div class="row g-3 mt-1">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Discount (%)</label>
+              <input type="number"
+                     name="discount_percentage"
+                     class="form-control"
+                     min="0"
+                     max="100"
+                     value="0">
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label">Return Period (days)</label>
+              <input type="number"
+                     name="return_period"
+                     class="form-control"
+                     min="0"
+                     value="0">
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <div class="mt-4">
+            <button class="btn btn-primary w-100 py-2 fw-semibold">
+              ✅ Add Product
+            </button>
+          </div>
+
+        </form>
       </div>
 
-      <div class="mb-3">
-        <label class="form-label">Company Name</label>
-        <input type="text" name="company" class="form-control" required>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Item Name</label>
-        <input type="text" name="item_name" class="form-control" required>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Original Price</label>
-          <input type="number" name="original_price" class="form-control" required>
-        </div>
-
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Current Price</label>
-          <input type="number" name="current_price" class="form-control" required>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Discount (%)</label>
-          <input type="number" name="discount_percentage" class="form-control" value="0">
-        </div>
-
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Return Period (days)</label>
-          <input type="number" name="return_period" class="form-control" value="0">
-        </div>
-      </div>
-
-      <button class="btn btn-primary w-100">✅ Add Product</button>
-    </form>
+    </div>
   </div>
 </div>

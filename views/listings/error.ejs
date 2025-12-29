@@ -1,7 +1,10 @@
 <% layout("/layout/bollerplate") %>
-
-<div class="row">
-    <div class="alert alert-danger col-6 offset-3 mt-3" role="alert">
-        <strong>Error <%= status %>:</strong> <%= message %>
+<div class="container mt-3">
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+            <div class="alert alert-danger" role="alert">
+                <strong>Error <%= status %>:</strong> <%= message %>
+            </div>
+        </div>
     </div>
 </div>

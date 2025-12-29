@@ -1,117 +1,118 @@
 <% layout("/layout/bollerplate") %>
 
-    <body class="p-4">
+<body class="p-4">
 
-        <div class="product-container mt-4">
-            <div class="row">
+    <div class="product-container mt-4">
+        <div class="row g-4">
 
-                <!-- LEFT PRODUCT IMAGE SCROLLABLE -->
-                <div class="col-md-6 product-left">
-                    <img src="<%= product.image %>" alt="<%= product.item_name %>">
-                </div>
+            <!-- LEFT PRODUCT IMAGE SCROLLABLE -->
+            <div class="col-12 col-md-6 product-left text-center">
+                <img src="<%= product.image %>" class="img-fluid" alt="<%= product.item_name %>">
+            </div>
 
-                <!-- RIGHT PRODUCT DETAILS -->
-                <div class="col-md-6 product-right">
+            <!-- RIGHT PRODUCT DETAILS -->
+            <div class="col-12 col-md-6 product-right">
 
-                    <!-- Company -->
-                    <h2 class="text-secondary mb-0">
-                        <%= product.company %>
-                    </h2>
+                <!-- Company -->
+                <h2 class="text-secondary mb-0">
+                    <%= product.company %>
+                </h2>
 
-                    <!-- Item Name -->
-                    <h3 class="fw-bold mt-1">
-                        <%= product.item_name %>
-                    </h3>
+                <!-- Item Name -->
+                <h3 class="fw-bold mt-1">
+                    <%= product.item_name %>
+                </h3>
 
-                    <!-- Rating -->
-                    <p class="mt-2 fs-5">
-                        ⭐ <span class="fw-bold">
-                            <%= product.rating.stars %>
-                        </span>
-                        (<%= product.rating.count %> ratings)
-                    </p>
+                <!-- Rating -->
+                <p class="mt-2 fs-5">
+                    ⭐ <span class="fw-bold">
+                        <%= product.rating.stars %>
+                    </span>
+                    (<%= product.rating.count %> ratings)
+                </p>
 
-                    <hr>
+                <hr>
 
-                    <!-- Price Section -->
-                    <h2 class="fw-bold">
-                        ₹<%= product.current_price %>
-                            <span class="text-muted fs-4">
-                                <del>₹<%= product.original_price %></del>
-                            </span>
-                            <span class="text-success fs-5 fw-bold">
-                                <%= product.discount_percentage %>% OFF
-                            </span>
-                    </h2>
+                <!-- Price Section -->
+                <h2 class="fw-bold">
+                    ₹<%= product.current_price %>
+                    <span class="text-muted fs-4">
+                        <del>₹<%= product.original_price %></del>
+                    </span>
+                    <span class="text-success fs-5 fw-bold">
+                        <%= product.discount_percentage %>% OFF
+                    </span>
+                </h2>
 
-                    <p class="text-secondary">(inclusive of all taxes)</p>
+                <p class="text-secondary">(inclusive of all taxes)</p>
 
-                    <hr>
+                <hr>
 
-                    <!-- Delivery -->
-                    <% const start=new Date(); start.setDate(start.getDate() + 3); const end=new Date();
-                        end.setDate(end.getDate() + 7); const opt={ day: 'numeric' , month: 'short' }; %>
+                <!-- Delivery -->
+                <% 
+                    const start = new Date(); start.setDate(start.getDate() + 3);
+                    const end = new Date(); end.setDate(end.getDate() + 7);
+                    const opt = { day: 'numeric', month: 'short' };
+                %>
+                <p class="fs-5">
+                    <b>Delivery by:</b>
+                    <%= start.toLocaleDateString('en-IN', opt) %> – <%= end.toLocaleDateString('en-IN', opt) %>
+                </p>
 
-                        <p class="fs-5">
-                            <b>Delivery by:</b>
-                            <%= start.toLocaleDateString('en-IN', opt) %> –
-                                <%= end.toLocaleDateString('en-IN', opt) %>
-                        </p>
+                <!-- Return -->
+                <p class="fs-5"><b>Return period:</b> <%= product.return_period %> days</p>
 
-                        <!-- Return -->
-                        <p class="fs-5"><b>Return period:</b>
-                            <%= product.return_period %> days
-                        </p>
-                        <hr>
-                        <!-- Buttons -->
-                        <div class="mt-4">
-                            <% if (session.userId) { %>
-                                <!-- USER LOGGED IN -->
-                                <div class="d-grid gap-2">
-                                    <a href="/buynow/<%= product._id %>" class="btn btn-success w-100">
-                                        Buy Now
-                                    </a>
-                                    <form class="add-to-cart-form" data-id="<%= product._id %>">
-                                        <button type="submit" class="btn btn-primary w-100">
-                                            Add to Cart
-                                        </button>
-                                    </form>
-                                </div>
-                                <% } else { %>
-                                    <!-- USER NOT LOGGED IN -->
-                                    <div class="alert alert-warning text-center">
-                                        <strong>Please login</strong> to buy or add items to your cart.
-                                    </div>
+                <hr>
 
-                                    <a href="/login" class="btn btn-outline-primary w-100">
-                                        Login / Signup
-                                    </a>
-                                    <% } %>
+                <!-- Buttons -->
+                <div class="mt-4">
+                    <% if (session.userId) { %>
+                        <!-- USER LOGGED IN -->
+                        <div class="d-grid gap-2">
+                            <a href="/buynow/<%= product._id %>" class="btn btn-success w-100">
+                                Buy Now
+                            </a>
+                            <form class="add-to-cart-form" data-id="<%= product._id %>">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    Add to Cart
+                                </button>
+                            </form>
                         </div>
+                    <% } else { %>
+                        <!-- USER NOT LOGGED IN -->
+                        <div class="alert alert-warning text-center">
+                            <strong>Please login</strong> to buy or add items to your cart.
+                        </div>
+
+                        <a href="/login" class="btn btn-outline-primary w-100">
+                            Login / Signup
+                        </a>
+                    <% } %>
                 </div>
             </div>
         </div>
-        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-        <script>
-            $(document).ready(function () {
-                $('.add-to-cart-form').submit(function (e) {
-                    e.preventDefault();
+    </div>
 
-                    const productId = $(this).data('id');
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.add-to-cart-form').submit(function (e) {
+                e.preventDefault();
+                const productId = $(this).data('id');
 
-                    $.post(`/add-to-cart/${productId}`, function (data) {
-                        if (data.success) {
-                            const countElem = $('#cartCount');
-                            countElem.text(parseInt(countElem.text()) + 1);
-                            alert('Product added to cart!');
-                        } else {
-                            alert(data.message || 'Error adding product to cart.');
-                        }
-                    }).fail(function () {
-                        alert('Please login first.');
-                        window.location.href = "/login";
-                    });
+                $.post(`/add-to-cart/${productId}`, function (data) {
+                    if (data.success) {
+                        const countElem = $('#cartCount');
+                        countElem.text(parseInt(countElem.text()) + 1);
+                        alert('Product added to cart!');
+                    } else {
+                        alert(data.message || 'Error adding product to cart.');
+                    }
+                }).fail(function () {
+                    alert('Please login first.');
+                    window.location.href = "/login";
                 });
             });
-        </script>
-    </body>
+        });
+    </script>
+</body>

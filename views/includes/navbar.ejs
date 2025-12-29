@@ -1,87 +1,94 @@
-<nav class="myntra-navbar sticky-top">
-  <div class="nav-top">
+<nav class="myntra-navbar sticky-top navbar navbar-expand-lg bg-light">
+  <div class="container-fluid nav-top">
 
-    <!-- LEFT -->
-    <div class="nav-left">
-      <a href="/" class="nav-logo">AK STORE</a>
-      <ul class="nav-menu">
-        <li><a href="#">Men</a></li>
-        <li><a href="#">Women</a></li>
-        <li><a href="#">Kids</a></li>
-        <li><a href="#">Home & Living</a></li>
-        <li><a href="#">Beauty</a></li>
+    <!-- LOGO -->
+    <a class="nav-logo navbar-brand" href="/">AK STORE</a>
+
+    <!-- TOGGLE BUTTON FOR MOBILE -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+      aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon">&#9776;</span>
+    </button>
+
+    <!-- COLLAPSIBLE CONTENT -->
+    <div class="collapse navbar-collapse" id="navbarContent">
+
+      <!-- LEFT MENU -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 nav-menu">
+        <li class="nav-item"><a class="nav-link" href="#">Men</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Women</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Kids</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Home & Living</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Beauty</a></li>
       </ul>
-    </div>
 
-    <!-- SEARCH -->
-    <div class="nav-search">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <input type="text" placeholder="Search for products, brands and more">
-    </div>
+      <!-- SEARCH -->
+      <form class="d-flex mx-auto nav-search" role="search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input class="form-control ms-2" type="search" placeholder="Search for products, brands and more">
+      </form>
 
-    <!-- RIGHT ICONS -->
-    <div class="nav-icons">
+      <!-- RIGHT ICONS -->
+      <div class="d-flex align-items-center nav-icons mt-2 mt-lg-0">
 
-      <!-- PROFILE -->
-      <div class="icon-box profile-wrapper">
-        <i class="fa-regular fa-user"></i>
-        <span>Profile</span>
+        <!-- PROFILE -->
+        <div class="icon-box profile-wrapper me-3">
+          <i class="fa-regular fa-user"></i>
+          <span>Profile</span>
+          <div class="profile-dropdown">
 
-        <!-- DROPDOWN -->
-        <div class="profile-dropdown">
+            <% if (session.userId) { %>
+              <div class="profile-header">
+                <p class="welcome">Hello, <strong><%= session.userName %></strong></p>
+                <p class="login-text">Welcome back to AK Store</p>
+                <a href="/logout" class="login-btn logout-btn">LOGOUT</a>
+              </div>
 
-          <% if (session.userId) { %>
-            <!-- LOGGED IN -->
-            <div class="profile-header">
-              <p class="welcome">Hello, <strong><%= session.userName %></strong></p>
-              <p class="login-text">Welcome back to AK Store</p>
-              <a href="/logout" class="login-btn logout-btn">LOGOUT</a>
-            </div>
+              <ul class="profile-links">
+                <li><a href="/order">Orders</a></li>
+                <li><a href="#">Wishlist</a></li>
+                <li><a href="#">Gift Cards</a></li>
+                <li><a href="#">Contact Us</a></li>
+              </ul>
 
-            <ul class="profile-links">
-              <li><a href="/order">Orders</a></li>
-              <li><a href="#">Wishlist</a></li>
-              <li><a href="#">Gift Cards</a></li>
-              <li><a href="#">Contact Us</a></li>
-            </ul>
+            <% } else { %>
+              <div class="profile-header">
+                <p class="welcome">Welcome</p>
+                <p class="login-text">To access account and manage orders</p>
+                <a href="/login" class="login-btn">LOGIN / SIGNUP</a>
+              </div>
 
-          <% } else { %>
-            <!-- NOT LOGGED IN -->
-            <div class="profile-header">
-              <p class="welcome">Welcome</p>
-              <p class="login-text">To access account and manage orders</p>
-              <a href="/login" class="login-btn">LOGIN / SIGNUP</a>
-            </div>
+              <ul class="profile-links">
+                <li><a href="/login">Orders</a></li>
+                <li><a href="/login">Wishlist</a></li>
+                <li><a href="#">Gift Cards</a></li>
+                <li><a href="#">Contact Us</a></li>
+                <li class="divider"></li>
+                <li><a href="#">Myntra Insider</a></li>
+              </ul>
+            <% } %>
 
-            <ul class="profile-links">
-              <li><a href="/login">Orders</a></li>
-              <li><a href="/login">Wishlist</a></li>
-              <li><a href="#">Gift Cards</a></li>
-              <li><a href="#">Contact Us</a></li>
-              <li class="divider"></li>
-              <li><a href="#">Myntra Insider</a></li>
-            </ul>
-          <% } %>
-
+          </div>
         </div>
-      </div>
 
-      <!-- WISHLIST ICON -->
-      <div class="icon-box">
-        <i class="fa-regular fa-heart"></i>
-        <span>Wishlist</span>
-      </div>
-
-      <!-- BAG -->
-      <a href="/cart" class="text-decoration-none text-dark">
-        <div class="icon-box position-relative">
-          <i class="fa-solid fa-bag-shopping"></i>
-          <span>Bag</span>
-          <span id="cartCount" class="cart-badge">
-            <%= cartCount || 0 %>
-          </span>
+        <!-- WISHLIST ICON -->
+        <div class="icon-box me-3">
+          <i class="fa-regular fa-heart"></i>
+          <span>Wishlist</span>
         </div>
-      </a>
+
+        <!-- BAG -->
+        <a href="/cart" class="text-decoration-none text-dark">
+          <div class="icon-box position-relative">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span>Bag</span>
+            <span id="cartCount" class="cart-badge">
+              <%= cartCount || 0 %>
+            </span>
+          </div>
+        </a>
+
+      </div>
 
     </div>
   </div>

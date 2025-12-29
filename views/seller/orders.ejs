@@ -6,16 +6,20 @@
   <p class="text-muted">No orders found.</p>
 <% } else { %>
 
-<div class="table-responsive">
-  <table class="table table-bordered align-middle text-center">
+<!-- Responsive wrapper -->
+<div class="table-responsive-lg">
+
+  <table class="table table-bordered align-middle text-center mb-0">
     <thead class="table-dark">
       <tr>
         <th>Order ID</th>
         <th>Products</th>
-        <th>Total Amount</th>
-        <th>Payment</th>
+        <th>Total</th>
+
+        <!-- Hide on small screens -->
+        <th class="d-none d-md-table-cell">Payment</th>
         <th>Status</th>
-        <th>Order Date</th>
+        <th class="d-none d-lg-table-cell">Order Date</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -24,33 +28,48 @@
       <% orders.forEach(order => { %>
         <% let total = 0; %>
 
-        <% order.items.forEach(item => {
-            total += item.quantity * item.productId.current_price;
-        }) %>
+        <% order.items.forEach(item => { %>
+          <% if (item.productId) { %>
+            <% total += item.quantity * item.productId.current_price; %>
+          <% } %>
+        <% }) %>
 
         <tr>
           <!-- Order ID -->
-          <td class="fw-bold"><%= order.orderId %></td>
+          <td class="fw-bold small">
+            <%= order.orderId %>
+          </td>
 
-          <!-- Product Images -->
+          <!-- Products -->
           <td>
-            <% order.items.forEach(item => { %>
-              <img src="<%= item.productId.image %>"
-                   width="40"
-                   class="me-1 mb-1 rounded"
-                   title="<%= item.productId.item_name %>">
-            <% }) %>
+            <div class="d-flex flex-wrap justify-content-center gap-1">
+              <% order.items.forEach(item => { %>
+                <% if (item.productId) { %>
+                  <img src="<%= item.productId.image %>"
+                       width="40"
+                       height="40"
+                       class="rounded"
+                       title="<%= item.productId.item_name %>">
+                <% } else { %>
+                  <span class="badge bg-danger">Removed</span>
+                <% } %>
+              <% }) %>
+            </div>
           </td>
 
           <!-- Total -->
-          <td class="fw-bold text-success">₹ <%= total %></td>
+          <td class="fw-bold text-success">
+            ₹ <%= total %>
+          </td>
 
-          <!-- Payment -->
-          <td><%= order.paymentMethod %></td>
+          <!-- Payment (tablet & up) -->
+          <td class="d-none d-md-table-cell">
+            <%= order.paymentMethod %>
+          </td>
 
           <!-- Status -->
           <td>
-            <span class="badge 
+            <span class="badge px-3 py-2
               <%= order.status === 'Delivered' ? 'bg-success' :
                   order.status === 'Cancelled' ? 'bg-danger' :
                   order.status === 'Confirmed' ? 'bg-primary' :
@@ -59,19 +78,22 @@
             </span>
           </td>
 
-          <!-- Date -->
-          <td><%= order.orderDate.toDateString() %></td>
+          <!-- Date (desktop only) -->
+          <td class="d-none d-lg-table-cell small">
+            <%= order.orderDate.toDateString() %>
+          </td>
 
-          <!-- View -->
+          <!-- Action -->
           <td>
             <a href="/seller/orders/<%= order._id %>"
-               class="btn btn-sm btn-outline-primary">
-              View Details
+               class="btn btn-sm btn-outline-primary w-100">
+              View
             </a>
           </td>
         </tr>
       <% }) %>
     </tbody>
+
   </table>
 </div>
 

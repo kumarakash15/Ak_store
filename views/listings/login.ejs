@@ -1,11 +1,19 @@
 <% layout("/layout/bollerplate") %>
 
-<div class="auth-container">
-  <h2>Login</h2>
-  <form action="/login" method="POST">
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">LOGIN</button>
-  </form>
-  <p>New to AK Store? <a href="/signup">Create account</a></p>
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="auth-container w-100" style="max-width: 400px;">
+    <h2 class="text-center mb-4">Login</h2>
+    <form action="/login" method="POST">
+      <div class="mb-3">
+        <input type="email" name="email" placeholder="Email" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <input type="password" name="password" placeholder="Password" class="form-control" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">LOGIN</button>
+    </form>
+    <p class="text-center mt-3">
+      New to AK Store? <a href="/signup">Create account</a>
+    </p>
+  </div>
 </div>
