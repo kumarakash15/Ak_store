@@ -2,7 +2,7 @@
 
 <body class="p-4">
 
-    <h2 class="mb-4">My Shopping Bag (<%= cartItems.length %>)</h2>
+    <h2 class="mb-4">My Shopping Bag (<%= cartItems.filter(item => item.productId).length %>)</h2>
 
     <div class="container">
         <div class="row">
@@ -10,12 +10,16 @@
             <!-- LEFT SIDE (Products) -->
             <div class="col-12 col-md-8 mb-4 mb-md-0">
 
-                <% if(cartItems.length === 0){ %>
+                <% 
+                // Filter out items with missing product references
+                const validCartItems = cartItems.filter(item => item.productId);
+                if(validCartItems.length === 0){ %>
                     <h3>Your cart is empty 😔</h3>
                 <% } %>
 
-                <% let totalMRP = 0; let totalDiscount = 0; let finalPrice = 0; %>
-                <% cartItems.forEach(item => { 
+                <% 
+                let totalMRP = 0, totalDiscount = 0, finalPrice = 0; 
+                validCartItems.forEach(item => { 
                     totalMRP += item.productId.original_price * item.quantity;
                     finalPrice += item.productId.current_price * item.quantity;
                     totalDiscount += (item.productId.original_price - item.productId.current_price) * item.quantity;
@@ -71,7 +75,9 @@
                         <span>₹<%= finalPrice %></span>
                     </div>
 
-                    <a href="/cart/buynow" class="btn btn-success w-100 mb-2">PLACE ORDER</a>
+                    <% if(validCartItems.length > 0){ %>
+                        <a href="/cart/buynow" class="btn btn-success w-100 mb-2">PLACE ORDER</a>
+                    <% } %>
                     <a href="/product" class="btn btn-outline-secondary w-100">Continue Shopping</a>
                 </div>
             </div>
